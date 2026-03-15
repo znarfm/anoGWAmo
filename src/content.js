@@ -229,11 +229,6 @@ function renderModeA(semesters, disqData) {
       ${statusBadgeHTML(gwa, disqualifiers, isOngoing)}
     </div>
     <div class="pup-honors-table">${honorsTableHTML(gwa)}</div>
-    <div class="pup-mode-desc">
-      <strong>Manual:</strong> reads every subject row, excludes
-      <code>PATHFIT</code>, <code>NSTP</code>, <code>CWTS</code>, and <code>ROTC</code> by code prefix,
-      and computes GWA from raw individual grades and units.
-    </div>
     ${disqAndPendingHTML(disqualifiers, pending)}
     <details class="pup-section">
       <summary>📋 Excluded from GWA (${excluded.length})</summary>
@@ -243,6 +238,11 @@ function renderModeA(semesters, disqData) {
     <details class="pup-section">
       <summary>📊 Included in GWA (${included.length} subjects)</summary>${incHTML}
     </details>
+    <p class="pup-gwa-note">
+      <strong>Manual:</strong> reads every subject row, excludes
+      <code>PATHFIT</code>, <code>NSTP</code>, <code>CWTS</code>, and <code>ROTC</code> by code prefix,
+      and computes GWA from raw individual grades and units.
+    </p>
     ${NOTE_HTML}`;
 }
 
@@ -288,16 +288,16 @@ function renderModeB(semesters, disqData) {
       ${statusBadgeHTML(gwa, disqualifiers, isOngoing)}
     </div>
     <div class="pup-honors-table">${honorsTableHTML(gwa)}</div>
-    <div class="pup-mode-desc">
-      <strong>Site GPA:</strong> uses the per-semester GPA values already computed by PUPSIS
-      (which the site labels as excluding NSTP and non-numeric ratings), then weights each by its
-      semester's academic unit count to produce a cumulative GWA.
-    </div>
     <details class="pup-section" open>
       <summary>📊 Semester Breakdown (${breakdown.length})</summary>${bdHTML}
     </details>
     ${skippedHTML}
     ${disqAndPendingHTML(disqualifiers, pending)}
+    <p class="pup-gwa-note">
+      <strong>Site GPA:</strong> uses the per-semester GPA values already computed by PUPSIS
+      (which the site labels as excluding NSTP and non-numeric ratings), then weights each by its
+      semester's academic unit count to produce a cumulative GWA.
+    </p>
     ${NOTE_HTML}`;
 }
 
