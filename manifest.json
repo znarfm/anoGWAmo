@@ -5,11 +5,17 @@
   "description": "Computes cumulative GWA from PUP SIS grades, excludes non-academic subjects, and checks Latin Honors eligibility.",
   "permissions": [],
   "host_permissions": [
-    "https://sis*.pup.edu.ph/student/grades*"
+    "https://sis1.pup.edu.ph/student/grades*",
+    "https://sis2.pup.edu.ph/student/grades*",
+    "https://sis8.pup.edu.ph/student/grades*"
   ],
   "content_scripts": [
     {
-      "matches": ["https://sis*.pup.edu.ph/student/grades*"],
+      "matches": [
+        "https://sis1.pup.edu.ph/student/grades*",
+        "https://sis2.pup.edu.ph/student/grades*",
+        "https://sis8.pup.edu.ph/student/grades*"
+      ],
       "js": ["src/content.js"],
       "css": ["src/styles.css"],
       "run_at": "document_idle"
