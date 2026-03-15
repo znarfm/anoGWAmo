@@ -305,8 +305,8 @@ function renderModeB(semesters, disqData) {
 
 function createPanel(semesters) {
   const disqData = checkDisqualifiers(semesters);
-  let currentMode = "A";
-  try { currentMode = localStorage.getItem(MODE_KEY) || "A"; } catch(_) {}
+  let currentMode = "B";
+  try { currentMode = localStorage.getItem(MODE_KEY) || "B"; } catch(_) {}
 
   const panel = document.createElement("div");
   panel.id = "pup-gwa-panel";
@@ -317,10 +317,10 @@ function createPanel(semesters) {
         <span class="pup-gwa-title">🎓 PUP GWA Checker</span>
         <div class="pup-header-controls">
           <div class="pup-mode-switcher">
-            <button class="mode-btn ${currentMode === "A" ? "active" : ""}" data-mode="A">Manual</button>
-            <button class="mode-btn ${currentMode === "B" ? "active" : ""}" data-mode="B">Site GPA</button>
+            <button type="button" class="mode-btn ${currentMode === "A" ? "active" : ""}" data-mode="A">Manual</button>
+            <button type="button" class="mode-btn ${currentMode === "B" ? "active" : ""}" data-mode="B">Site GPA</button>
           </div>
-          <button class="pup-gwa-toggle" title="Collapse/Expand">▲</button>
+          <button type="button" class="pup-gwa-toggle" title="Collapse/Expand">▲</button>
         </div>
       </div>
       <div class="pup-gwa-body">
