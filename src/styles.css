@@ -58,12 +58,7 @@
   margin-bottom: 4px;
 }
 
-.ongoing-badge {
-  font-size: 20px;
-  vertical-align: super;
-  color: #e67e22;
-  cursor: help;
-}
+
 
 .pup-gwa-label {
   font-size: 13px;
@@ -316,28 +311,7 @@
 
 /* ── Mode badge next to "Cumulative GWA" label ──────────────────────────── */
 
-.mode-badge {
-  display: inline-block;
-  padding: 1px 7px;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  vertical-align: middle;
-  margin-left: 6px;
-}
 
-.mode-a {
-  background: #fef3cd;
-  color: #856404;
-  border: 1px solid #ffc107;
-}
-
-.mode-b {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
-}
 
 /* ── Mode description box ───────────────────────────────────────────────── */
 

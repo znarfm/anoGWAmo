@@ -1,7 +1,7 @@
 /**
  * PUP Latin Honors GWA Checker – content.js
- * Mode A: manual computation, excludes PATHFIT/NSTP/CWTS/ROTC by code prefix
- * Mode B: uses the per-semester GPA values already shown by the PUPSIS
+ * Manual: manual computation, excludes PATHFIT/NSTP/CWTS/ROTC by code prefix
+ * Site GPA: uses the per-semester GPA values already shown by the PUPSIS
  *         website, then re-weights them by academic units for a cumulative figure.
  */
 
@@ -104,7 +104,7 @@ function checkDisqualifiers(semesters) {
   return { disqualifiers, pending };
 }
 
-// ── Mode A ───────────────────────────────────────────────────────────────────
+// ── Manual Mode ───────────────────────────────────────────────────────────────────
 
 function computeModeA(semesters) {
   let pts = 0, units = 0;
@@ -122,7 +122,7 @@ function computeModeA(semesters) {
   return { gwa: units > 0 ? pts / units : null, totalUnits: units, included, excluded };
 }
 
-// ── Mode B ───────────────────────────────────────────────────────────────────
+// ── Site GPA Mode ───────────────────────────────────────────────────────────────────
 
 function computeModeB(semesters) {
   let pts = 0, units = 0;
@@ -193,7 +193,7 @@ function disqAndPendingHTML(disqualifiers, pending) {
 
 const NOTE_HTML = `<p class="pup-gwa-note">ℹ For reference only. Official GWA is determined by the PUP Registrar. Transfer students from outside the PUP system are not eligible for Latin Honors.</p>`;
 
-// ── Mode A render ─────────────────────────────────────────────────────────────
+// ── Manual mode render ─────────────────────────────────────────────────────────────
 
 function renderModeA(semesters, disqData) {
   const { gwa, totalUnits, included, excluded } = computeModeA(semesters);
@@ -223,15 +223,14 @@ function renderModeA(semesters, disqData) {
     <div class="pup-gwa-main">
       <div class="pup-gwa-score" style="color:${honorColor(honor)}">
         ${gwa !== null ? gwa.toFixed(4) : "N/A"}
-        ${isOngoing ? '<span class="ongoing-badge" title="Some grades still pending">~</span>' : ""}
       </div>
-      <div class="pup-gwa-label">Cumulative GWA <span class="mode-badge mode-a">Mode A</span></div>
+      <div class="pup-gwa-label">Cumulative GWA</div>
       <div class="pup-gwa-units">${totalUnits} academic units computed</div>
       ${statusBadgeHTML(gwa, disqualifiers, isOngoing)}
     </div>
     <div class="pup-honors-table">${honorsTableHTML(gwa)}</div>
     <div class="pup-mode-desc">
-      <strong>Mode A – Manual:</strong> reads every subject row, excludes
+      <strong>Manual:</strong> reads every subject row, excludes
       <code>PATHFIT</code>, <code>NSTP</code>, <code>CWTS</code>, and <code>ROTC</code> by code prefix,
       and computes GWA from raw individual grades and units.
     </div>
@@ -247,7 +246,7 @@ function renderModeA(semesters, disqData) {
     ${NOTE_HTML}`;
 }
 
-// ── Mode B render ─────────────────────────────────────────────────────────────
+// ── Site GPA mode render ─────────────────────────────────────────────────────────────
 
 function renderModeB(semesters, disqData) {
   const { gwa, totalUnits, breakdown, skipped } = computeModeB(semesters);
@@ -283,15 +282,14 @@ function renderModeB(semesters, disqData) {
     <div class="pup-gwa-main">
       <div class="pup-gwa-score" style="color:${honorColor(honor)}">
         ${gwa !== null ? gwa.toFixed(4) : "N/A"}
-        ${isOngoing ? '<span class="ongoing-badge" title="Some grades still pending">~</span>' : ""}
       </div>
-      <div class="pup-gwa-label">Cumulative GWA <span class="mode-badge mode-b">Mode B</span></div>
+      <div class="pup-gwa-label">Cumulative GWA</div>
       <div class="pup-gwa-units">${totalUnits} academic units · ${breakdown.length} semester(s)</div>
       ${statusBadgeHTML(gwa, disqualifiers, isOngoing)}
     </div>
     <div class="pup-honors-table">${honorsTableHTML(gwa)}</div>
     <div class="pup-mode-desc">
-      <strong>Mode B – Site GPA:</strong> uses the per-semester GPA values already computed by PUPSIS
+      <strong>Site GPA:</strong> uses the per-semester GPA values already computed by PUPSIS
       (which the site labels as excluding NSTP and non-numeric ratings), then weights each by its
       semester's academic unit count to produce a cumulative GWA.
     </div>
