@@ -1,0 +1,404 @@
+/* PUP GWA Checker Panel Styles */
+
+#pup-gwa-panel {
+  font-family: "Source Sans Pro", Arial, sans-serif;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  overflow: hidden;
+}
+
+.pup-gwa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #8b0000, #c0392b);
+  color: #fff;
+  padding: 10px 16px;
+}
+
+.pup-gwa-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.pup-gwa-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.pup-gwa-toggle:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.pup-gwa-body {
+  padding: 16px;
+}
+
+/* Main GWA Display */
+.pup-gwa-main {
+  text-align: center;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 14px;
+}
+
+.pup-gwa-score {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.ongoing-badge {
+  font-size: 20px;
+  vertical-align: super;
+  color: #e67e22;
+  cursor: help;
+}
+
+.pup-gwa-label {
+  font-size: 13px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.pup-gwa-units {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.pup-status {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-honor {
+  background: #d5f5e3;
+  color: #1a7a45;
+  border: 1px solid #27ae60;
+}
+
+.status-disqualified {
+  background: #fdecea;
+  color: #922b21;
+  border: 1px solid #e74c3c;
+}
+
+.status-none {
+  background: #f4f6f7;
+  color: #566573;
+  border: 1px solid #aab7b8;
+}
+
+.status-icon {
+  font-size: 15px;
+}
+
+/* Honors Table */
+.pup-honors-table {
+  margin-bottom: 14px;
+}
+
+.pup-honors-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pup-honors-table th {
+  background: #f2f3f4;
+  padding: 6px 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+  font-weight: 600;
+  color: #444;
+}
+
+.pup-honors-table td {
+  padding: 5px 10px;
+  border: 1px solid #eee;
+  color: #555;
+}
+
+.pup-honors-table .row-match {
+  background: #eafaf1;
+  font-weight: 700;
+  color: #1a7a45;
+}
+
+.pup-honors-table .row-match td {
+  color: #1a7a45;
+  border-color: #a9dfbf;
+}
+
+/* Sections */
+.pup-section {
+  margin-bottom: 8px;
+  border: 1px solid #e5e7e9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pup-section > summary {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  list-style: none;
+  user-select: none;
+}
+
+.pup-section > summary::-webkit-details-marker { display: none; }
+.pup-section > summary::before {
+  content: "▶ ";
+  font-size: 10px;
+  color: #888;
+}
+.pup-section[open] > summary::before {
+  content: "▼ ";
+}
+
+.pup-section > *:not(summary) {
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.muted { color: #888; margin: 0; font-size: 13px; }
+.muted-sm { color: #999; font-size: 12px; margin-bottom: 6px; }
+
+/* Subject Lists */
+.pup-subj-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pup-subj-list li {
+  padding: 3px 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+  font-size: 13px;
+}
+
+.pup-subj-list li:last-child { border-bottom: none; }
+
+.subj-code {
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.non-academic { color: #7f8c8d; }
+.no-grade { color: #e67e22; }
+
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #eaecee;
+  color: #616a6b;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.tag-warn {
+  background: #fef9e7;
+  color: #b7770d;
+}
+
+/* Disqualifiers */
+.pup-disq-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pup-disq-list li {
+  padding: 4px 0;
+  border-bottom: 1px solid #fdecea;
+  color: #922b21;
+  font-size: 13px;
+}
+.pup-disq-list li:last-child { border-bottom: none; }
+
+/* Included subjects table */
+.pup-included-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.pup-included-table th {
+  background: #f2f3f4;
+  padding: 5px 8px;
+  text-align: left;
+  border: 1px solid #ddd;
+  font-weight: 600;
+  color: #444;
+}
+
+.pup-included-table td {
+  padding: 4px 8px;
+  border: 1px solid #eee;
+  color: #555;
+}
+
+.pup-included-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Note */
+.pup-gwa-note {
+  margin-top: 12px;
+  margin-bottom: 0;
+  font-size: 11px;
+  color: #999;
+  line-height: 1.5;
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+}
+
+/* ── Mode switcher ──────────────────────────────────────────────────────── */
+
+.pup-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pup-mode-switcher {
+  display: flex;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mode-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.mode-btn.active {
+  background: rgba(255,255,255,0.9);
+  color: #8b0000;
+}
+
+/* ── Mode badge next to "Cumulative GWA" label ──────────────────────────── */
+
+.mode-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.mode-a {
+  background: #fef3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.mode-b {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* ── Mode description box ───────────────────────────────────────────────── */
+
+.pup-mode-desc {
+  background: #f8f9fa;
+  border-left: 3px solid #adb5bd;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #555;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 12px;
+}
+
+.pup-mode-desc code {
+  background: #e9ecef;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #c0392b;
+}
+
+/* ── Breakdown total row ────────────────────────────────────────────────── */
+
+.breakdown-total {
+  background: #f0f4ff;
+  border-top: 2px solid #aab7cc;
+}
+
+.breakdown-total td {
+  color: #2c3e50;
+}
+
+/* ── Honors table wrapper (renamed inner table) ─────────────────────────── */
+
+.pup-honors-table-inner {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pup-honors-table-inner th {
+  background: #f2f3f4;
+  padding: 6px 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+  font-weight: 600;
+  color: #444;
+}
+
+.pup-honors-table-inner td {
+  padding: 5px 10px;
+  border: 1px solid #eee;
+  color: #555;
+}
+
+.pup-honors-table-inner .row-match {
+  background: #eafaf1;
+  font-weight: 700;
+}
+
+.pup-honors-table-inner .row-match td {
+  color: #1a7a45;
+  border-color: #a9dfbf;
+}
