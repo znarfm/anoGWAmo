@@ -1,5 +1,5 @@
 /**
- * PUP Latin Honors GWA Checker – content.js
+ * anoGWAmo?
  * Manual: manual computation, excludes PATHFIT/NSTP/CWTS/ROTC by code prefix
  * Site GPA: uses the per-semester GPA values already shown by the PUPSIS
  *         website, then re-weights them by academic units for a cumulative figure.
@@ -314,7 +314,7 @@ function createPanel(semesters) {
   function render() {
     panel.innerHTML = `
       <div class="pup-gwa-header">
-        <span class="pup-gwa-title">🎓 PUP GWA Checker</span>
+        <span class="pup-gwa-title">🎓 anoGWAmo?</span>
         <div class="pup-header-controls">
           <div class="pup-mode-switcher">
             <button type="button" class="mode-btn ${currentMode === "A" ? "active" : ""}" data-mode="A">Manual</button>

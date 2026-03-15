@@ -1,6 +1,6 @@
-# PUP Latin Honors GWA Checker
+# anoGWAmo?
 
-A browser extension that automatically computes your cumulative GWA directly on the PUP SIS Grades page (`https://sis8.pup.edu.ph/student/grades`).
+A browser extension that automatically computes your cumulative GWA directly on the [PUP SIS](https://sisstudents.pup.edu.ph/) Grades page.
 
 ## Features
 
@@ -29,19 +29,19 @@ A browser extension that automatically computes your cumulative GWA directly on 
 1. Go to `chrome://extensions` (or `brave://extensions`, `edge://extensions`)
 2. Enable **Developer Mode** (top right toggle)
 3. Click **Load unpacked**
-4. Select the `pup-gwa-checker` folder
+4. Select the `anoGWAmo` folder
 
 ### Firefox
 
 1. Go to `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on...**
-3. Select any file inside the `pup-gwa-checker` folder (e.g., `manifest.json`)
+3. Select any file inside the `anoGWAmo` folder (e.g., `manifest.json`)
 
 > Note: Firefox temporary add-ons are removed when Firefox restarts. For permanent installation, the extension would need to be signed via AMO.
 
 ## Usage
 
-1. Log in to PUPSIS at `https://sis8.pup.edu.ph/student/`
+1. Log in to PUPSIS at `https://sisstudents.pup.edu.ph/`
 2. Navigate to the **Grades** page
 3. The GWA panel will appear automatically at the top of the page
 
