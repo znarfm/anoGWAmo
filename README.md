@@ -44,6 +44,12 @@ The extension checks the following disqualifiers as per the PUP Student Handbook
 3. Click **Load unpacked**
 4. Select the `anoGWAmo` folder
 
+### Firefox
+
+1. Go to `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on...**
+3. Select any file inside the `anoGWAmo` folder (e.g., `manifest.json`)
+
 ## Usage
 
 1. Log in to PUPSIS.
