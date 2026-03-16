@@ -7,9 +7,9 @@
 
 const NON_ACADEMIC_PREFIXES = ["PATHFIT", "NSTP", "CWTS", "ROTC"];
 const HONORS = [
-  { label: "Summa Cum Laude", min: 1.0000, max: 1.1500 },
-  { label: "Magna Cum Laude", min: 1.1501, max: 1.3500 },
-  { label: "Cum Laude",       min: 1.3501, max: 1.6000 },
+  { label: "Summa Cum Laude", min: 1.0000, max: 1.1500, color: "var(--pup-honor-summa)" },
+  { label: "Magna Cum Laude", min: 1.1501, max: 1.3500, color: "var(--pup-honor-magna)" },
+  { label: "Cum Laude",       min: 1.3501, max: 1.6000, color: "var(--pup-honor-cumlaude)" },
 ];
 const MODE_KEY = "pup_gwa_mode";
 
@@ -32,10 +32,10 @@ function honorFor(gwa) {
 }
 
 function honorColor(label) {
-  if (label === "Summa Cum Laude") return "#c0392b";
-  if (label === "Magna Cum Laude") return "#8e44ad";
-  if (label === "Cum Laude")       return "#2980b9";
-  return "#6c757d";
+  if (label === "Summa Cum Laude") return "var(--pup-honor-summa)";
+  if (label === "Magna Cum Laude") return "var(--pup-honor-magna)";
+  if (label === "Cum Laude")       return "var(--pup-honor-cumlaude)";
+  return "var(--pup-honor-none)";
 }
 
 // ── Scrape ──────────────────────────────────────────────────────────────────
@@ -301,6 +301,49 @@ function renderModeB(semesters, disqData) {
     ${NOTE_HTML}`;
 }
 
+// ── Theme Detection ─────────────────────────────────────────────────────────
+
+/**
+ * Detects if the page is currently in dark mode (e.g., via Dark Reader
+ * or if the body background is dark).
+ */
+function isPageDark() {
+  // 1. Check for Dark Reader attributes
+  const html = document.documentElement;
+  if (html.hasAttribute("data-darkreader-scheme") || html.hasAttribute("data-darkreader-mode")) {
+    return true;
+  }
+
+  // 2. Check body background color brightness
+  const body = document.body;
+  if (body) {
+    const bg = window.getComputedStyle(body).backgroundColor;
+    const match = bg.match(/\d+/g);
+    if (match && match.length >= 3) {
+      const [r, g, b] = match.map(Number);
+      // Simple brightness formula (Y = 0.299R + 0.587G + 0.114B)
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness < 128; // Usually < 128 is considered dark
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Syncs the panel theme with the page.
+ */
+function syncPanelTheme(panel) {
+  if (!panel) return;
+  if (isPageDark()) {
+    panel.classList.add("pup-dark");
+    panel.style.colorScheme = "dark";
+  } else {
+    panel.classList.remove("pup-dark");
+    panel.style.colorScheme = "light";
+  }
+}
+
 // ── Panel ─────────────────────────────────────────────────────────────────────
 
 function createPanel(semesters) {
@@ -342,9 +385,20 @@ function createPanel(semesters) {
       body.style.display = c ? "" : "none";
       toggleBtn.textContent = c ? "▲" : "▼";
     });
+
+    // Initial theme sync
+    syncPanelTheme(panel);
   }
 
   render();
+
+  // Watch for theme changes (e.g. Dark Reader toggled)
+  const observer = new MutationObserver(() => syncPanelTheme(panel));
+  observer.observe(document.documentElement, { attributes: true, childList: true, subtree: false });
+  if (document.body) {
+    observer.observe(document.body, { attributes: true, style: true });
+  }
+
   return panel;
 }
 
