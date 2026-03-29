@@ -46,7 +46,7 @@
 }
 
 body {
-  font-family: "Outfit", -apple-system, sans-serif;
+  font-family: "Outfit", -apple-system, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
   width: 330px;
   margin: 0;
   padding: 0;
@@ -92,7 +92,7 @@ body::before {
 }
 
 .empty-state h2 {
-  font-family: "Playfair Display", serif;
+  font-family: "Playfair Display", serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
   font-style: italic;
   font-size: 20px;
   margin-bottom: 8px;
@@ -128,7 +128,7 @@ body::before {
 }
 
 .title {
-  font-family: "Playfair Display", serif;
+  font-family: "Playfair Display", serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
   font-weight: 700;
   font-size: 16px;
 }
@@ -144,7 +144,7 @@ body::before {
 .mode-btn {
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
-  font-family: "Outfit", sans-serif;
+  font-family: "Outfit", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
   font-size: 10px;
   font-weight: 600;
   padding: 4px 10px;
@@ -179,7 +179,7 @@ body::before {
 }
 
 .gwa-score {
-  font-family: "Playfair Display", serif;
+  font-family: "Playfair Display", serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
   font-size: 64px;
   font-weight: 800;
   line-height: 1;
