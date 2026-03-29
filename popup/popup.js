@@ -1,4 +1,4 @@
-const extApi = typeof browser !== 'undefined' ? browser : chrome;
+import extApi from "webextension-polyfill";
 const MODE_KEY = "pup_gwa_mode";
 
 const HONORS = [

@@ -5,6 +5,8 @@
  *         website, then re-weights them by academic units for a cumulative figure.
  */
 
+import extApi from "webextension-polyfill";
+
 const NON_ACADEMIC_PREFIXES = ["PATHFIT", "NSTP", "CWTS", "ROTC"];
 const HONORS = [
   { label: "Summa Cum Laude", min: 1.0000, max: 1.1500, color: "var(--pup-honor-summa)" },
@@ -348,7 +350,6 @@ function syncPanelTheme(panel) {
 
 async function createPanel(semesters) {
   const disqData = checkDisqualifiers(semesters);
-  const extApi = typeof browser !== 'undefined' ? browser : chrome;
   
   let currentMode = "B";
   try {
