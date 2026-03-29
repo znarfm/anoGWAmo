@@ -73,10 +73,7 @@ async function run() {
       id: "anogwamo@meinard.dev",
       strict_min_version: "142.0",
       data_collection_permissions: {
-        is_opt_in_required: false,
-        is_on_by_default: false,
-        can_be_disabled: false,
-        required: false
+        required: ["none"]
       }
     }
   };
