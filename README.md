@@ -1,66 +1,77 @@
-# anoGWAmo?
+<div align="center">
+  <img src="icons/icon128.png" alt="anoGWAmo? logo" width="128" height="128">
+  <h1>anoGWAmo?</h1>
+  <p><strong>The essential cumulative GWA calculator for PUP students.</strong></p>
 
-A browser extension that automatically computes your cumulative GWA directly on the [PUP SIS](https://sisstudents.pup.edu.ph/) Grades page.
+  [![Chrome](https://img.shields.io/badge/Chrome-Compatible-success.svg)](https://www.google.com/chrome/)
+  [![Firefox](https://img.shields.io/badge/Firefox-Compatible-success.svg)](https://www.mozilla.org/firefox/)
+</div>
 
-## Features
+---
 
-- **Dual Computation Modes**: Toggle between **Manual** and **Site GPA** modes for verification.
-- **Cumulative GWA**: Computes across **all semesters**, providing a comprehensive view of your academic performance.
-- **Academic Focus**: Automatically excludes non-academic subjects (PATHFIT, NSTP, CWTS, ROTC) from the GWA computation.
-- **Latin Honors Checker**: Automatically checks eligibility against PUP's strict disqualifiers.
-- **Live Status**: Marks GWA as "Projected" if some grades are still pending.
-- **Detailed Insights**: View exactly which subjects are included or excluded and why.
-- **Seamless Integration**: Collapsible panel injected directly into the PUPSIS grades interface.
+**anoGWAmo?** is a lightweight browser extension designed to inject a smart Grade Weighted Average (GWA) dashboard directly into the **PUP SIS Grades** page. It automates the tedious calculation of cumulative GWA while strictly adhering to the PUP Student Handbook guidelines for academic honors.
 
-## Computation Modes
+> [!NOTE]
+> This extension is built by a student, for students. It is intended for reference only and does not represent official university records.
 
-| Mode | Description |
-| --- | --- |
-| **Manual** | Scrapes every subject row, filters by code prefix, and computes GWA using individual grades and units. |
-| **Site GPA** | Averages the per-semester GPA values already computed by PUPSIS, weighted by the academic units in each semester. |
+## ✨ Key Features
 
-## Latin Honors Eligibility (PUP)
+- 🧮 **Cumulative GWA Calculation**: Computes your performance across all available semesters instantly.
+- 🎓 **Latin Honors Eligibility**: Automatically checks if you still qualify based on grades and academic marks.
+- ⚖️ **Dual Mode Verification**:
+  - **Manual Mode**: Scrapes each subject row to calculate the weighted average.
+  - **Site GPA Mode**: Uses the pre-calculated semester averages from SIS for reference.
+- 🚫 **Academic Filtering**: Automatically excludes non-credit subjects (PATHFIT, NSTP, CWTS, etc.) from the calculation.
+- 📊 **Projected Status**: Marks your GWA as "Projected" if any grades are still pending (P).
+- 🌓 **Seamless UI**: Collapsible, responsive panel that matches the PUP SIS aesthetic.
 
-The extension checks the following disqualifiers as per the PUP Student Handbook:
+---
 
-- Any grade lower than **2.5** in any subject (academic or non-academic).
-- Any failing grade (**5.0**).
-- Any Incomplete (**Inc.**) or Withdrawn (**W**) mark.
+## 🛠️ How it Works
+
+The extension uses the following weighted formula:
+$$GWA = \frac{\sum(\text{Grade} \times \text{Units})}{\sum(\text{Units})}$$
+
+It only counts academic subjects. For Latin Honors, it monitors for disqualifiers such as:
+
+- Grades lower than **2.5**.
+- Failing grades (**5.0**).
+- **Incomplete (Inc.)** or **Withdrawn (W)** marks.
 
 ### Honor Thresholds
 
 | Honor | GWA Range |
-| --- | --- |
-| Summa Cum Laude | 1.0000 – 1.1500 |
-| Magna Cum Laude | 1.1501 – 1.3500 |
-| Cum Laude | 1.3501 – 1.6000 |
+| :--- | :--- |
+| **Summa Cum Laude** | 1.0000 – 1.1500 |
+| **Magna Cum Laude** | 1.1501 – 1.3500 |
+| **Cum Laude** | 1.3501 – 1.6000 |
 
-## Installation
+---
 
-### Chrome / Brave / Edge (Chromium-based)
+## 🚀 Installation
 
-1. Go to `chrome://extensions` (or `brave://extensions`, `edge://extensions`)
-2. Enable **Developer Mode** (top right toggle)
-3. Click **Load unpacked**
-4. Select the `anoGWAmo` folder
+### Chromium (Chrome, Edge, Brave)
+
+1. Navigate to your browser's extensions page (e.g., `chrome://extensions`).
+2. Enable **Developer Mode**.
+3. Click **Load unpacked**.
+4. Select the `anoGWAmo` folder.
 
 ### Firefox
 
-1. Go to `about:debugging#/runtime/this-firefox`
-2. Click **Load Temporary Add-on...**
-3. Select any file inside the `anoGWAmo` folder (e.g., `manifest.json`)
+1. Navigate to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on...**.
+3. Select any file within the project directory (e.g., `manifest.json`).
 
-## Usage
+---
 
-1. Log in to PUPSIS.
-2. Navigate to the **Grades** page.
-3. The **anoGWAmo?** panel will appear automatically at the top of the content area.
-4. Use the mode switcher to toggle between computation methods.
+## 🔐 Privacy and Permissions
 
-## Technical Notes
+- **Local Execution**: All calculations are performed on your machine.
+- **Zero Tracking**: No data is sent to external servers or collectors.
+- **Minimal Permissions**: Only requests access to `sis1`, `sis2`, and `sis8` to function.
 
-- The GWA formula used is: `GWA = Σ(Grade × Units) / Σ(Units)`.
-- **Supported Domains**: Works on `sis1.pup.edu.ph`, `sis2.pup.edu.ph`, and `sis8.pup.edu.ph`.
-- **Privacy**: The extension runs entirely in your browser and does not send any data to external servers.
-- **Disclaimer**: This tool is for reference only. Official GWA is determined by the PUP Registrar.
-- **Eligibility**: Transferees from outside the PUP System are not eligible for Latin Honors regardless of GWA.
+---
+
+> [!IMPORTANT]
+> Transferees from outside the PUP System are generally not eligible for Latin Honors regardless of GWA, as per the PUP Student Handbook.
