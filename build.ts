@@ -55,7 +55,6 @@ async function run() {
     "https://sis1.pup.edu.ph/student/grades*",
     "https://sis2.pup.edu.ph/student/grades*",
     "https://sis8.pup.edu.ph/student/grades*",
-    "https://sisstudents.pup.edu.ph/student/grades*"
   ];
   manifest.host_permissions = hosts;
   manifest.content_scripts[0].matches = hosts;
