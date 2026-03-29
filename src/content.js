@@ -179,14 +179,14 @@ function statusBadgeHTML(gwa, disqualifiers, isOngoing) {
 
 function disqAndPendingHTML(disqualifiers, pending) {
   const dq = disqualifiers.length > 0
-    ? `<ul class="pup-disq-list">${disqualifiers.map(d => `<li>⚠ ${d}</li>`).join("")}</ul>`
+    ? `<ul class="pup-disq-list">${disqualifiers.map(d => `<li>⚠️ ${d}</li>`).join("")}</ul>`
     : "<p class='muted'>None detected</p>";
   const pg = pending.length > 0
     ? `<ul class="pup-subj-list">${pending.map(s => `<li>${s}</li>`).join("")}</ul>`
     : "<p class='muted'>None</p>";
   return `
     <details class="pup-section">
-      <summary>⚠ Disqualifiers (${disqualifiers.length})</summary>${dq}
+      <summary>⚠️ Disqualifiers (${disqualifiers.length})</summary>${dq}
     </details>
     <details class="pup-section">
       <summary>⏳ Pending Grades (${pending.length})</summary>${pg}
@@ -275,7 +275,7 @@ function renderModeB(semesters, disqData) {
 
   const skippedHTML = skipped.length > 0
     ? `<details class="pup-section">
-        <summary>⏭ Skipped Semesters (${skipped.length})</summary>
+        <summary>⏭️ Skipped Semesters (${skipped.length})</summary>
         <ul class="pup-subj-list">${skipped.map(s => `<li>${s}</li>`).join("")}</ul>
       </details>`
     : "";
