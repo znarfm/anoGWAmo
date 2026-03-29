@@ -1,0 +1,73 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on semantic versioning tags
+      # git tag vx.x.x && git push --tags
+  workflow_dispatch: # Allows manual execution from the Actions tab
+
+permissions:
+  contents: write # Essential permission to create releases and upload artifacts
+
+jobs:
+  build_and_publish:
+    name: Build & Release Extension
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Environment
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Build Extension Archives
+        run: bun run build
+
+      - name: GitHub Release Creation
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/anoGWAmo-chrome.zip
+            dist/anoGWAmo-firefox.zip
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+
+      # Reference: https://github.com/mnao305/chrome-extension-upload
+      - name: Publish to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v5.0.0
+        if: startsWith(github.ref, 'refs/tags/') && secrets.CHROME_CLIENT_ID != ''
+        with:
+          file-path: dist/anoGWAmo-chrome.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+
+      # Reference: https://github.com/wdzeng/edge-addon
+      - name: Publish to Edge Add-ons
+        uses: wdzeng/edge-addon@v2.1.0
+        if: startsWith(github.ref, 'refs/tags/') && secrets.EDGE_CLIENT_ID != ''
+        with:
+          client-id: ${{ secrets.EDGE_CLIENT_ID }}
+          client-secret: ${{ secrets.EDGE_CLIENT_SECRET }}
+          access-token-url: ${{ secrets.EDGE_ACCESS_TOKEN_URL }}
+          product-id: ${{ secrets.EDGE_PRODUCT_ID }}
+          zip-path: dist/anoGWAmo-chrome.zip
+      
+      # Reference: https://github.com/wdzeng/firefox-addon-submit
+      - name: Publish to Firefox AMO
+        uses: wdzeng/firefox-addon@v1.2.0
+        if: startsWith(github.ref, 'refs/tags/') && secrets.FIREFOX_JWT_ISSUER != ''
+        with:
+          jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
+          extension-id: anogwamo@meinard.dev
+          xpi-path: dist/anoGWAmo-firefox.zip
