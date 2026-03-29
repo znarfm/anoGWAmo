@@ -174,7 +174,17 @@ function statusBadgeHTML(gwa, disqualifiers, isOngoing) {
     msg = isOngoing ? `Projected: ${honor} (some grades still pending)` : honor;
     cls = "status-honor";
   }
-  return `<div class="pup-status ${cls}"><span class="status-icon">${icon}</span> ${msg}</div>`;
+  const statusDiv = document.createElement("div");
+  statusDiv.className = `pup-status ${cls}`;
+  
+  const iconSpan = document.createElement("span");
+  iconSpan.className = "status-icon";
+  iconSpan.textContent = icon;
+  
+  statusDiv.appendChild(iconSpan);
+  statusDiv.append(` ${msg}`);
+  
+  return statusDiv.outerHTML;
 }
 
 function disqAndPendingHTML(disqualifiers, pending) {

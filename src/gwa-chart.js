@@ -100,7 +100,16 @@ class GWAChart {
             const point = this.points[closestIdx];
             const item = this.data[closestIdx];
             
-            this.tooltip.innerHTML = `<strong>${item.semester}</strong><br/>GWA: <strong>${item.gwa.toFixed(4)}</strong>`;
+            this.tooltip.textContent = "";
+            const semStrong = document.createElement("strong");
+            semStrong.textContent = item.semester;
+            this.tooltip.appendChild(semStrong);
+            this.tooltip.appendChild(document.createElement("br"));
+            this.tooltip.append("GWA: ");
+            const gwaStrong = document.createElement("strong");
+            gwaStrong.textContent = item.gwa.toFixed(4);
+            this.tooltip.appendChild(gwaStrong);
+            
             this.tooltip.classList.add('visible');
             
             const tooltipRect = this.tooltip.getBoundingClientRect();
