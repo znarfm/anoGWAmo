@@ -137,6 +137,8 @@ class GWAChart {
     
     // High DPI scaling
     const rect = this.canvasDiv.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return; // Prevent collapse calculations
+    
     const dpr = window.devicePixelRatio || 1;
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
@@ -244,7 +246,7 @@ class GWAChart {
     
     // Labels X
     const xLabels = this.data.length;
-    const stepX = Math.ceil(xLabels / (this.innerWidth / 40)); 
+    const stepX = Math.max(1, Math.ceil(xLabels / Math.max(1, this.innerWidth / 40))); 
 
     for (let i = 0; i < xLabels; i += stepX) {
         const p = this.points[i];
