@@ -434,7 +434,7 @@ async function createPanel(semesters) {
   }
 
   function render() {
-    panel.innerHTML = `
+    const rawHTML = `
       <div class="pup-gwa-header">
         <span class="pup-gwa-title">🎓 anoGWAmo?</span>
         <div class="pup-header-controls">
@@ -449,6 +449,10 @@ async function createPanel(semesters) {
         <div id="pup-gwa-chart-wrapper" style="width: 100%; margin-bottom: 24px; display: none;"></div>
         ${currentMode === "B" ? renderModeB(semesters, disqData) : renderModeA(semesters, disqData)}
       </div>`;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHTML, "text/html");
+    panel.replaceChildren(...doc.body.childNodes);
 
     panel.querySelectorAll(".mode-btn").forEach(btn => {
       btn.addEventListener("click", () => {
