@@ -354,6 +354,59 @@ function createPanel(semesters) {
   const panel = document.createElement("div");
   panel.id = "pup-gwa-panel";
 
+  let chartInstance = null;
+
+  function renderChartData() {
+    const container = panel.querySelector('#pup-gwa-chart-wrapper');
+    if (!container || typeof GWAChart === 'undefined') return;
+
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
+
+    const chartData = [];
+    
+    if (currentMode === "B") {
+      const { breakdown } = computeModeB(semesters);
+      breakdown.forEach(b => {
+        chartData.push({ semester: b.label, gwa: b.siteGpa });
+      });
+    } else {
+      semesters.forEach(sem => {
+        let semPts = 0, semUnits = 0;
+        sem.subjects.forEach(subj => {
+          if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) {
+            semPts += subj.grade * subj.units;
+            semUnits += subj.units;
+          }
+        });
+        if (semUnits > 0) {
+          chartData.push({ semester: sem.label, gwa: semPts / semUnits });
+        }
+      });
+    }
+
+    if (chartData.length < 2) {
+      container.style.display = 'none';
+      return;
+    }
+    
+    container.style.display = 'block';
+
+    // Reverse to show older semesters first (assuming data is newest first like PUPSIS typically is)
+    chartData.reverse();
+
+    chartInstance = new GWAChart(container, {
+      targetGWA: 1.60,
+      lineColor: '#800000', // PUP Maroon
+      fillStart: 'rgba(128, 0, 0, 0.3)',
+      fillEnd: 'rgba(128, 0, 0, 0.0)'
+    });
+
+    chartInstance.renderChart(chartData);
+  }
+
   function render() {
     panel.innerHTML = `
       <div class="pup-gwa-header">
@@ -367,6 +420,7 @@ function createPanel(semesters) {
         </div>
       </div>
       <div class="pup-gwa-body">
+        <div id="pup-gwa-chart-wrapper" style="width: 100%; margin-bottom: 24px; display: none;"></div>
         ${currentMode === "B" ? renderModeB(semesters, disqData) : renderModeA(semesters, disqData)}
       </div>`;
 
@@ -388,6 +442,9 @@ function createPanel(semesters) {
 
     // Initial theme sync
     syncPanelTheme(panel);
+    
+    // Render the chart after DOM is updated
+    setTimeout(renderChartData, 0);
   }
 
   render();
