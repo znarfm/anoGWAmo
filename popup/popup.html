@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>anoGWAmo?</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Populated by JS -->
+    <div id="loading">Loading...</div>
+  </div>
+
+  <template id="tpl-empty">
+    <div class="empty-state">
+      <img src="../icons/icon128.png" alt="anoGWAmo logo" width="64" height="64" class="logo">
+      <h2>Welcome to anoGWAmo?</h2>
+      <p>We don't have your grades recorded yet.</p>
+      <button id="btn-login" class="btn-primary">Calculate my GWA</button>
+      <p class="muted-note">This will open PUP SIS.</p>
+    </div>
+  </template>
+
+  <template id="tpl-dashboard">
+    <div class="dashboard">
+      <div class="header">
+        <span class="title">🎓 anoGWAmo?</span>
+        <span class="mode-badge" id="ds-mode">Mode</span>
+      </div>
+      <div class="main-card">
+        <div class="gwa-score" id="ds-gwa">...</div>
+        <div class="gwa-label">Cumulative GWA</div>
+        <div class="gwa-units" id="ds-units">-- academic units</div>
+      </div>
+      <div class="status-card" id="ds-status-card">
+        <span class="status-icon" id="ds-status-icon"></span>
+        <span class="status-text" id="ds-status-text">--</span>
+      </div>
+      
+      <div class="last-sync">
+        <span id="ds-timestamp">--</span>
+      </div>
+
+      <div class="actions">
+        <button id="btn-update" class="btn-secondary">Update Grades</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="popup.js"></script>
+</body>
+</html>
