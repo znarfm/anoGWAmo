@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "fa58a64cfb6bf1c826bcdd1d61a86524bcb6d54f41321272b84be0ed65d853f1"
     },
+    "bun-development": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "d36e22683b65b676c4bd1503320dd7d3e3e3522593325666801e56465cbd817d"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
