@@ -70,7 +70,13 @@ async function run() {
   // Firefox Manifest
   manifest.browser_specific_settings = {
     gecko: {
-      id: "anogwamo@meinard.dev"
+      id: "anogwamo@meinard.dev",
+      strict_min_version: "109.0",
+      data_collection_permissions: {
+        is_opt_in_required: false,
+        is_on_by_default: false,
+        can_be_disabled: false
+      }
     }
   };
   await writeFile("dist/manifest.json", JSON.stringify(manifest, null, 2));
