@@ -72,7 +72,20 @@ async function render() {
     const isOngoing = data.disqData && data.disqData.pending && data.disqData.pending.length > 0;
 
     // Set UI elements
-    tpl.querySelector('#ds-mode').textContent = mode === "A" ? "Manual Mode" : "Site GPA Mode";
+    const modeBtns = tpl.querySelectorAll('.mode-btn');
+    modeBtns.forEach(btn => {
+      if (btn.dataset.mode === mode) btn.classList.add('active');
+      else btn.classList.remove('active');
+      
+      btn.addEventListener('click', async () => {
+        try {
+          await extApi.storage.local.set({ [MODE_KEY]: btn.dataset.mode });
+          render();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    });
     tpl.querySelector('#ds-gwa').textContent = gwa !== null ? gwa.toFixed(4) : "N/A";
     let colorKey = "var(--pup-text)";
     
