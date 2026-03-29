@@ -346,10 +346,25 @@ function syncPanelTheme(panel) {
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
 
-function createPanel(semesters) {
+async function createPanel(semesters) {
   const disqData = checkDisqualifiers(semesters);
+  const extApi = typeof browser !== 'undefined' ? browser : chrome;
+  
   let currentMode = "B";
-  try { currentMode = localStorage.getItem(MODE_KEY) || "B"; } catch(_) {}
+  try {
+    const data = await extApi.storage.local.get([MODE_KEY]);
+    if (data[MODE_KEY]) currentMode = data[MODE_KEY];
+  } catch(e) { console.error(e); }
+
+  try {
+    await extApi.storage.local.set({ 
+      anoGWAmo_data: { 
+        semesters, 
+        disqData, 
+        timestamp: Date.now() 
+      } 
+    });
+  } catch(e) { console.error(e); }
 
   const panel = document.createElement("div");
   panel.id = "pup-gwa-panel";
@@ -427,7 +442,7 @@ function createPanel(semesters) {
     panel.querySelectorAll(".mode-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         currentMode = btn.dataset.mode;
-        try { localStorage.setItem(MODE_KEY, currentMode); } catch(_) {}
+        try { extApi.storage.local.set({ [MODE_KEY]: currentMode }); } catch(_) {}
         render();
       });
     });
@@ -461,11 +476,11 @@ function createPanel(semesters) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-function init() {
+async function init() {
   if (document.getElementById("pup-gwa-panel")) return;
   const semesters = scrapeAll();
   if (semesters.length === 0) return;
-  const panel = createPanel(semesters);
+  const panel = await createPanel(semesters);
   const sec = document.querySelector("section.content");
   if (sec) sec.insertBefore(panel, sec.firstChild);
   else document.body.appendChild(panel);
