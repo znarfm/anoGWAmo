@@ -25,7 +25,10 @@
   <template id="tpl-dashboard">
     <div class="dashboard">
       <div class="header">
-        <span class="title">🎓 anoGWAmo?</span>
+        <div class="branding">
+          <span class="logo-emoji">🎓</span>
+          <span class="title">anoGWAmo?</span>
+        </div>
         <div class="mode-switcher" id="ds-mode-switcher">
           <button class="mode-btn" data-mode="C">Planner</button>
           <button class="mode-btn" data-mode="A">Manual</button>
@@ -46,7 +49,8 @@
         <span id="ds-timestamp">--</span>
       </div>
 
-       <div class="actions">
+      <div class="actions">
+        <div class="update-tooltip">Redirects to SIS. Visit the Grades page after login to sync.</div>
         <button id="btn-update" class="btn-secondary">Update Grades</button>
       </div>
     </div>
@@ -58,6 +62,21 @@
         <div class="gwa-label" id="pl-label">Projected Final GWA</div>
         <div class="gwa-score" id="pl-gwa">...</div>
         <div class="gwa-units" id="pl-units">-- / -- units</div>
+        <div class="pl-baseline-row">
+          <label for="pl-global-select">Global Target:</label>
+          <select id="pl-global-select" class="pl-select">
+            <option value="">--</option>
+            <option value="1.00">1.00</option>
+            <option value="1.25">1.25</option>
+            <option value="1.50">1.50</option>
+            <option value="1.75">1.75</option>
+            <option value="2.00">2.00</option>
+            <option value="2.25">2.25</option>
+            <option value="2.50">2.50</option>
+            <option value="2.75">2.75</option>
+            <option value="3.00">3.00</option>
+          </select>
+        </div>
       </div>
       
       <div class="planner-targets" id="pl-targets">
