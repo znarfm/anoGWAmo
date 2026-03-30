@@ -130,7 +130,12 @@ body::before {
 .branding {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+}
+
+.branding a, a:hover, a:visited, a:active {
+  color: inherit;
 }
 
 .logo-emoji {

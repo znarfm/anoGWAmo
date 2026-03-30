@@ -264,7 +264,7 @@ function disqAndPendingHTML(disqualifiers, pending) {
     </details>`;
 }
 
-const NOTE_HTML = `<p class="pup-gwa-note">ℹ️ For reference only. Official GWA is determined by the PUP Registrar. Transfer students from outside the PUP system are not eligible for Latin Honors.</p>`;
+const NOTE_HTML = `<p class="pup-gwa-note">For reference only. Official GWA is determined by the PUP Registrar. Transfer students from outside the PUP system are not eligible for Latin Honors.</p>`;
 
 // ── Manual mode render ─────────────────────────────────────────────────────────────
 
@@ -637,7 +637,7 @@ async function createPanel(semesters, studentInfo) {
 
     const rawHTML = `
       <div class="pup-gwa-header">
-        <span class="pup-gwa-title">🎓 anoGWAmo?</span>
+        <a href="https://github.com/znarfm/anoGWAmo" target="_blank"><span class="pup-gwa-title">🎓 anoGWAmo?</span></a>
         <div class="pup-header-controls">
           <div class="pup-mode-switcher">
             <button type="button" class="mode-btn ${currentMode === "C" ? "active" : ""}" data-mode="C">Planner</button>
