@@ -1,4 +1,4 @@
-class GWAChart {
+export default class GWAChart {
   constructor(container, options = {}) {
     this.container = typeof container === 'string' ? document.querySelector(container) : container;
     
