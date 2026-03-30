@@ -206,8 +206,8 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
             chart.renderChart(chartData);
             const chartBase64 = chart.canvas.toDataURL("image/png");
             chartHTML = `
-              <div style="margin: 0 auto 30px auto; text-align: center; max-width: 700px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fbfbf9;">
-                 <h4 style="margin: 0 0 10px 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px;">GWA Progression</h4>
+              <div style="margin: 0 auto 30px auto; text-align: center; max-width: 700px; padding: 25px; border: 1.5px solid #eee; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                 <h4 style="margin: 0 0 15px 0; font-size: 10px; text-transform: uppercase; color: #999; letter-spacing: 2px; font-weight: 700;">GWA Progression Performance</h4>
                  <img src="${chartBase64}" style="width: 100%; height: auto; display: block;" alt="GWA Chart" />
               </div>
             `;
@@ -326,6 +326,25 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
                 @media print {
                     body { -webkit-print-color-adjust: exact; padding: 0; }
                 }
+                .footer {
+                    margin-top: 50px;
+                    text-align: center;
+                    color: #bbb;
+                    font-size: 10px;
+                    letter-spacing: 0.5px;
+                }
+                .footer a {
+                    color: #800000;
+                    text-decoration: none;
+                    font-weight: 700;
+                    margin-left: 10px;
+                }
+                .footer-logo {
+                    font-family: 'Playfair Display', serif;
+                    font-style: italic;
+                    font-size: 12px;
+                    color: #4A0404;
+                }
             </style>
         </head>
         <body>
@@ -346,6 +365,10 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
             </div>
             ${chartHTML}
             ${tableHTML}
+            
+            <div class="footer">
+                <a href="https://github.com/znarfm/anoGWAmo" target="_blank">github.com / znarfm / <span class="footer-logo">anoGWAmo?</span></a>
+            </div>
         </body>
         </html>
     `;
