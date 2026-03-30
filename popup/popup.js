@@ -1,81 +1,9 @@
 import extApi from "webextension-polyfill";
-const MODE_KEY = "pup_gwa_mode";
-
-const HONORS = [
-  { label: "Summa Cum Laude", min: 1.0000, max: 1.1500, color: "var(--pup-honor-summa)" },
-  { label: "Magna Cum Laude", min: 1.1501, max: 1.3500, color: "var(--pup-honor-magna)" },
-  { label: "Cum Laude",       min: 1.3501, max: 1.6000, color: "var(--pup-honor-cumlaude)" },
-];
-
-const CURR_KEY = "anoGWAmo_curriculum";
-const PROJ_KEY = "anoGWAmo_projections";
-
-function honorFor(gwa) {
-  if (gwa === null) return null;
-  for (const h of HONORS) if (gwa >= h.min && gwa <= h.max) return h.label;
-  return null;
-}
-
-function honorColor(label) {
-  if (label === "Summa Cum Laude") return "var(--pup-honor-summa)";
-  if (label === "Magna Cum Laude") return "var(--pup-honor-magna)";
-  if (label === "Cum Laude")       return "var(--pup-honor-cumlaude)";
-  return "var(--pup-text)";
-}
-
-function computeModeA(semesters) {
-  let pts = 0, units = 0;
-  semesters.forEach(sem => {
-    sem.subjects.forEach(subj => {
-      if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) {
-        pts += subj.grade * subj.units; 
-        units += subj.units;
-      }
-    });
-  });
-  return { gwa: units > 0 ? pts / units : null, totalUnits: units };
-}
-
-function computeModeB(semesters) {
-  let pts = 0, units = 0;
-  semesters.forEach(sem => {
-    if (sem.siteGpa === null) return;
-    let semUnits = 0;
-    sem.subjects.forEach(subj => {
-      if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) semUnits += subj.units;
-    });
-    if (semUnits === 0) return;
-    pts += sem.siteGpa * semUnits; 
-    units += semUnits;
-  });
-  return { gwa: units > 0 ? pts / units : null, totalUnits: units };
-}
-
-function computeModeC(curriculum, projections = {}) {
-  let pts = 0, units = 0, rUnits = 0, pPts = 0;
-  curriculum.forEach(s => {
-    if (s.isNonAcademic || s.units === null) return;
-    if (s.grade !== null && s.grade <= 3.0) {
-      pts += s.grade * s.units; units += s.units;
-    } else if (s.grade === null) {
-      rUnits += s.units;
-      const semKey = `${(s.schoolYear || "").toUpperCase()} - ${(s.semester || "").toUpperCase()}`;
-      const p = parseFloat(projections[semKey] || projections["GLOBAL"] || null);
-      if (!isNaN(p)) pPts += p * s.units;
-    }
-  });
-
-  const totalU = units + rUnits;
-  const pGwa = totalU > 0 ? (pts + pPts) / totalU : null;
-
-  const reqAverages = HONORS.map(h => {
-    if (rUnits === 0) return { ...h, req: null };
-    const req = (h.max * totalU - pts) / rUnits;
-    return { ...h, req };
-  });
-
-  return { gwa: pGwa, totalUnits: units, totalAcademicUnits: totalU, reqAverages };
-}
+import { 
+  HONORS, MODE_KEY, CURR_KEY, PROJ_KEY, 
+  honorFor, honorColor, 
+  computeModeA, computeModeB, computeModeC, exportToPDF 
+} from "../src/core/utils.js";
 
 async function render() {
   const app = document.getElementById('app');
@@ -187,8 +115,27 @@ async function render() {
     }
 
     tpl.querySelector('#btn-update').addEventListener('click', () => {
-       extApi.tabs.create({ url: 'https://sisstudents.pup.edu.ph/' });
+       extApi.tabs.create({ url: 'https://sisstudents.pup.edu.ph/student/grades' });
     });
+
+    const exportBtn = tpl.querySelector('#btn-export');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+         exportBtn.textContent = "⏳";
+         exportBtn.style.pointerEvents = "none";
+         exportToPDF({
+             currentMode: mode,
+             studentInfo: data.studentInfo,
+             semesters: data.semesters,
+             curriculum,
+             userProjections: projections,
+             onComplete: () => {
+                 exportBtn.textContent = "📥";
+                 exportBtn.style.pointerEvents = "all";
+             }
+         });
+      });
+    }
 
     app.appendChild(tpl);
   } catch (error) {

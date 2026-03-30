@@ -49,9 +49,12 @@
         <span id="ds-timestamp">--</span>
       </div>
 
-      <div class="actions">
-        <div class="update-tooltip">Redirects to SIS. Visit the Grades page after login to sync.</div>
-        <button id="btn-update" class="btn-secondary">Update Grades</button>
+      <div class="actions" style="display: flex; gap: 8px;">
+        <button id="btn-export" class="btn-secondary" style="padding: 10px;" title="Export Record as PDF">📥</button>
+        <div style="position:relative; width: 100%;">
+           <div class="update-tooltip">Redirects to SIS. Visit the Grades page after login to sync.</div>
+           <button id="btn-update" class="btn-secondary" style="width: 100%;">Update Grades</button>
+        </div>
       </div>
     </div>
   </template>
