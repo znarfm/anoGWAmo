@@ -135,6 +135,19 @@ async function render() {
        plTpl.querySelector('#pl-gwa').style.color = honorColor(honor);
        plTpl.querySelector('#pl-units').textContent = `${totalUnits} / ${totalAcademicUnits} acad units`;
        
+       const globalSel = plTpl.querySelector('#pl-global-select');
+       const baseline = projections["GLOBAL"] || "";
+       if (globalSel) {
+          globalSel.value = baseline;
+          globalSel.addEventListener('change', async (e) => {
+             const val = e.target.value;
+             if (val === "") delete projections["GLOBAL"];
+             else projections["GLOBAL"] = val;
+             await extApi.storage.local.set({ [PROJ_KEY]: projections });
+             render();
+          });
+       }
+
        const targetsGrid = plTpl.querySelector('#pl-targets');
        reqAverages.forEach(h => {
           const card = document.createElement('div');
