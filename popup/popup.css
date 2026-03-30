@@ -260,22 +260,22 @@ body::before {
 .update-tooltip {
   position: absolute;
   bottom: 100%;
-  left: 20px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
   background: var(--pup-header-bg);
   color: var(--pup-header-text);
-  font-size: 11px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  font-size: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
   margin-bottom: 8px;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(8px);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   line-height: 1.4;
   text-align: center;
   z-index: 10;
+  width: 140px;
 }
 
 .update-tooltip::after {
@@ -284,13 +284,13 @@ body::before {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 6px solid transparent;
+  border: 5px solid transparent;
   border-top-color: var(--pup-header-bg);
 }
 
-.actions:hover .update-tooltip {
+.update-btn-wrapper:hover .update-tooltip {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Buttons */

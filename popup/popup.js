@@ -33,10 +33,10 @@ async function render() {
     let gwa, totalUnits, totalAcademicUnits, reqAverages;
     if (mode === "C") {
       const res = computeModeC(curriculum, projections);
-      gwa = res.gwa;
+      gwa = res.projectedGwa;
       totalUnits = res.totalUnits;
       totalAcademicUnits = res.totalAcademicUnits;
-      reqAverages = res.reqAverages;
+      reqAverages = res.requiredAverages;
     } else {
       const res = mode === "A" ? computeModeA(data.semesters) : computeModeB(data.semesters);
       gwa = res.gwa;
@@ -130,7 +130,7 @@ async function render() {
              curriculum,
              userProjections: projections,
              onComplete: () => {
-                 exportBtn.textContent = "📥";
+                 exportBtn.textContent = "Export PDF";
                  exportBtn.style.pointerEvents = "all";
              }
          });
