@@ -148,21 +148,31 @@
   letter-spacing: 0.5px;
 }
 
+.pup-export-btn,
 .pup-gwa-toggle {
   background: none;
   border: none;
   color: var(--pup-header-text);
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   padding: 4px 10px;
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.2);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: "Outfit", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.pup-export-btn:hover,
 .pup-gwa-toggle:hover {
   background: var(--pup-header-text);
   color: var(--pup-header-bg);
+}
+
+.pup-export-btn {
+  margin-right: 6px;
+  font-size: 12px;
 }
 
 .pup-gwa-body {
