@@ -7,10 +7,20 @@ const HONORS = [
   { label: "Cum Laude",       min: 1.3501, max: 1.6000, color: "var(--pup-honor-cumlaude)" },
 ];
 
+const CURR_KEY = "anoGWAmo_curriculum";
+const PROJ_KEY = "anoGWAmo_projections";
+
 function honorFor(gwa) {
   if (gwa === null) return null;
   for (const h of HONORS) if (gwa >= h.min && gwa <= h.max) return h.label;
   return null;
+}
+
+function honorColor(label) {
+  if (label === "Summa Cum Laude") return "var(--pup-honor-summa)";
+  if (label === "Magna Cum Laude") return "var(--pup-honor-magna)";
+  if (label === "Cum Laude")       return "var(--pup-honor-cumlaude)";
+  return "var(--pup-text)";
 }
 
 function computeModeA(semesters) {
@@ -41,20 +51,47 @@ function computeModeB(semesters) {
   return { gwa: units > 0 ? pts / units : null, totalUnits: units };
 }
 
+function computeModeC(curriculum, projections = {}) {
+  let pts = 0, units = 0, rUnits = 0, pPts = 0;
+  curriculum.forEach(s => {
+    if (s.isNonAcademic || s.units === null) return;
+    if (s.grade !== null && s.grade <= 3.0) {
+      pts += s.grade * s.units; units += s.units;
+    } else if (s.grade === null) {
+      rUnits += s.units;
+      const semKey = `${(s.schoolYear || "").toUpperCase()} - ${(s.semester || "").toUpperCase()}`;
+      const p = parseFloat(projections[semKey] || projections["GLOBAL"] || null);
+      if (!isNaN(p)) pPts += p * s.units;
+    }
+  });
+
+  const totalU = units + rUnits;
+  const pGwa = totalU > 0 ? (pts + pPts) / totalU : null;
+
+  const reqAverages = HONORS.map(h => {
+    if (rUnits === 0) return { ...h, req: null };
+    const req = (h.max * totalU - pts) / rUnits;
+    return { ...h, req };
+  });
+
+  return { gwa: pGwa, totalUnits: units, totalAcademicUnits: totalU, reqAverages };
+}
+
 async function render() {
   const app = document.getElementById('app');
   app.innerHTML = "";
 
   try {
-    const res = await extApi.storage.local.get(['anoGWAmo_data', MODE_KEY]);
+    const res = await extApi.storage.local.get(['anoGWAmo_data', CURR_KEY, PROJ_KEY, MODE_KEY]);
     const data = res.anoGWAmo_data;
+    const curriculum = res[CURR_KEY] || [];
+    const projections = res[PROJ_KEY] || {};
     const mode = res[MODE_KEY] || "B";
 
-    if (!data || !data.semesters || data.semesters.length === 0) {
-      // Empty state
+    if ((!data || !data.semesters || data.semesters.length === 0) && curriculum.length === 0) {
       const tpl = document.getElementById('tpl-empty').content.cloneNode(true);
       tpl.querySelector('#btn-login').addEventListener('click', () => {
-        extApi.tabs.create({ url: 'https://sisstudents.pup.edu.ph/' });
+        extApi.tabs.create({ url: 'https://sisstudents.pup.edu.ph/student/grades' });
       });
       app.appendChild(tpl);
       return;
@@ -62,53 +99,80 @@ async function render() {
 
     // Dashboard
     const tpl = document.getElementById('tpl-dashboard').content.cloneNode(true);
+    const mainContainer = tpl.querySelector('.dashboard');
     
     // Compute data
-    const comp = mode === "A" ? computeModeA(data.semesters) : computeModeB(data.semesters);
-    const { gwa, totalUnits } = comp;
+    let gwa, totalUnits, totalAcademicUnits, reqAverages;
+    if (mode === "C") {
+      const res = computeModeC(curriculum, projections);
+      gwa = res.gwa;
+      totalUnits = res.totalUnits;
+      totalAcademicUnits = res.totalAcademicUnits;
+      reqAverages = res.reqAverages;
+    } else {
+      const res = mode === "A" ? computeModeA(data.semesters) : computeModeB(data.semesters);
+      gwa = res.gwa;
+      totalUnits = res.totalUnits;
+    }
     
     const honor = honorFor(gwa);
-    const hasDisqualifiers = data.disqData && data.disqData.disqualifiers && data.disqData.disqualifiers.length > 0;
-    const isOngoing = data.disqData && data.disqData.pending && data.disqData.pending.length > 0;
+    const hasDisqualifiers = data && data.disqData && data.disqData.disqualifiers && data.disqData.disqualifiers.length > 0;
+    const isOngoing = mode !== "C" && data && data.disqData && data.disqData.pending && data.disqData.pending.length > 0;
 
-    // Set UI elements
+    // Mode Switcher setup
     const modeBtns = tpl.querySelectorAll('.mode-btn');
     modeBtns.forEach(btn => {
-      if (btn.dataset.mode === mode) btn.classList.add('active');
-      else btn.classList.remove('active');
-      
+      btn.classList.toggle('active', btn.dataset.mode === mode);
       btn.addEventListener('click', async () => {
-        try {
-          await extApi.storage.local.set({ [MODE_KEY]: btn.dataset.mode });
-          render();
-        } catch (e) {
-          console.error(e);
-        }
+        await extApi.storage.local.set({ [MODE_KEY]: btn.dataset.mode });
+        render();
       });
     });
-    tpl.querySelector('#ds-gwa').textContent = gwa !== null ? gwa.toFixed(4) : "N/A";
-    let colorKey = "var(--pup-text)";
-    
-    let icon, msg, cls;
-    if (hasDisqualifiers) {
-      icon = "✗"; msg = "Disqualified"; cls = "rgba(255,0,0,0.1)"; colorKey = "darkred";
-    } else if (!honor) {
-      icon = "○"; msg = gwa !== null ? (gwa > 1.6 ? "No Latin Honors" : "Below Threshold") : "No Grades";
+
+    if (mode === "C") {
+       const plTpl = document.getElementById('tpl-planner').content.cloneNode(true);
+       plTpl.querySelector('#pl-gwa').textContent = gwa !== null ? gwa.toFixed(4) : "—";
+       plTpl.querySelector('#pl-gwa').style.color = honorColor(honor);
+       plTpl.querySelector('#pl-units').textContent = `${totalUnits} / ${totalAcademicUnits} acad units`;
+       
+       const targetsGrid = plTpl.querySelector('#pl-targets');
+       reqAverages.forEach(h => {
+          const card = document.createElement('div');
+          card.className = "pl-target-card";
+          card.style.borderLeft = `3px solid ${h.color}`;
+          let msg = h.req < 1.0 ? "N/A" : (h.req > 3.0 ? "Guaranteed" : `≤ ${h.req.toFixed(4)}`);
+          card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div>`;
+          targetsGrid.appendChild(card);
+       });
+       
+       // Insert planner view instead of standard score card
+       tpl.querySelector('.main-card').replaceWith(plTpl);
+       tpl.querySelector('#ds-status-card').style.display = 'none';
     } else {
-      icon = "✓"; msg = isOngoing ? `Projected: ${honor}` : honor;
-      const hb = HONORS.find(h => h.label === honor);
-      if (hb) colorKey = hb.color;
+      tpl.querySelector('#ds-gwa').textContent = gwa !== null ? gwa.toFixed(4) : "N/A";
+      let colorKey = honorColor(honor);
+      
+      let icon, msg;
+      if (hasDisqualifiers) {
+        icon = "✗"; msg = "Disqualified"; colorKey = "rgba(180, 0, 0, 1)";
+      } else if (!honor) {
+        icon = "○"; msg = gwa !== null ? (gwa > 1.6 ? "No Latin Honors" : "Below Threshold") : "No Grades";
+      } else {
+        icon = "✓"; msg = isOngoing ? `Projected: ${honor}` : honor;
+      }
+
+      tpl.querySelector('#ds-gwa').style.color = colorKey;
+      tpl.querySelector('#ds-units').textContent = `${totalUnits} academic units computed`;
+      tpl.querySelector('#ds-status-icon').textContent = icon;
+      tpl.querySelector('#ds-status-text').textContent = msg;
+    }
+    
+    const timestamp = data ? data.timestamp : (curriculum.length > 0 ? Date.now() : null);
+    if (timestamp) {
+       const date = new Date(timestamp);
+       tpl.querySelector('#ds-timestamp').textContent = `Last synced: ${date.toLocaleString()}`;
     }
 
-    tpl.querySelector('#ds-gwa').style.color = colorKey;
-    tpl.querySelector('#ds-units').textContent = `${totalUnits} acad units computed`;
-    tpl.querySelector('#ds-status-icon').textContent = icon;
-    tpl.querySelector('#ds-status-text').textContent = msg;
-    
-    const date = new Date(data.timestamp || Date.now());
-    tpl.querySelector('#ds-timestamp').textContent = `Last synced: ${date.toLocaleString()}`;
-
-    // Update button
     tpl.querySelector('#btn-update').addEventListener('click', () => {
        extApi.tabs.create({ url: 'https://sisstudents.pup.edu.ph/' });
     });
