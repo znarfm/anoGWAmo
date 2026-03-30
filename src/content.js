@@ -11,6 +11,7 @@ import {
   isNonAcademic, parseGrade, honorFor, honorColor, 
   computeModeA, computeModeB, computeModeC, exportToPDF 
 } from "./core/utils.js";
+import GWAChart from "./gwa-chart.js";
 
 // ── Scrape ──────────────────────────────────────────────────────────────────
 
@@ -575,7 +576,7 @@ async function createPanel(semesters, studentInfo) {
 
   function renderChartData() {
     const container = panel.querySelector('#pup-gwa-chart-wrapper');
-    if (!container || typeof GWAChart === 'undefined') return;
+    if (!container) return;
 
     if (chartInstance) {
       chartInstance.destroy();

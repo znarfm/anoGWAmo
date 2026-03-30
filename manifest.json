@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "anoGWAmo?",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Computes cumulative GWA from PUP SIS grades, excludes non-academic subjects, and checks Latin Honors eligibility.",
   "permissions": [
     "storage"
@@ -27,7 +27,7 @@
         "https://sis2.pup.edu.ph/student/grades*",
         "https://sis8.pup.edu.ph/student/grades*"
       ],
-      "js": ["src/gwa-chart.js", "src/content.js"],
+      "js": ["src/content.js"],
       "css": ["src/gwa-chart.css", "src/styles.css"],
       "run_at": "document_idle"
     }

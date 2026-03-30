@@ -14,7 +14,7 @@ async function run() {
   console.log("📦 Copying static assets...");
   await $`cp -r icons/* dist/icons/`;
   await $`cp popup/popup.html dist/popup/`;
-  await $`cp src/gwa-chart.* dist/src/`.catch(() => console.log("gwa-chart not found, skipping."));
+  await $`cp src/gwa-chart.css dist/src/`.catch(() => console.log("gwa-chart.css not found, skipping."));
 
   // Copy fonts
   console.log("🖋️ Bundling local fonts...");
@@ -48,7 +48,7 @@ async function run() {
   console.log("⚙️  Generating Manifests...");
   const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
   
-  manifest.content_scripts[0].js = ["src/gwa-chart.js", "src/content.js"];
+  manifest.content_scripts[0].js = ["src/content.js"];
   manifest.content_scripts[0].css = ["css/fonts.css", "src/gwa-chart.css", "src/styles.css"];
 
   const hosts = [

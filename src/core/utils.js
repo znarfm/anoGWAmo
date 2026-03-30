@@ -1,3 +1,4 @@
+import GWAChart from "../gwa-chart.js";
 export const NON_ACADEMIC_PREFIXES = ["PATHFIT", "NSTP", "CWTS", "ROTC"];
 
 export const HONORS = [
@@ -172,6 +173,50 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
     const nameStr = studentInfo && studentInfo.name ? `${studentInfo.name} ${studentInfo.id ? `(${studentInfo.id})` : ''}` : "Anonymous Student";
     const gwaFormatted = gwaVal !== null ? gwaVal.toFixed(4) : "N/A";
 
+    // ── Generate Chart Image ──────────────────────────────────────────────────
+    let chartHTML = "";
+    if (currentMode !== "C" && semesters && semesters.length > 0) {
+        const dummyContainer = document.createElement('div');
+        dummyContainer.style.width = '700px';
+        dummyContainer.style.height = '275px';
+        dummyContainer.style.position = 'absolute';
+        dummyContainer.style.left = '-9999px';
+        document.body.appendChild(dummyContainer);
+
+        const chart = new GWAChart(dummyContainer);
+        
+        const chartData = [];
+        if (currentMode === "B") {
+            const { breakdown } = computeModeB(semesters);
+            breakdown.forEach(b => chartData.push({ semester: b.label, gwa: b.siteGpa }));
+        } else if (currentMode === "A") {
+            semesters.forEach(sem => {
+                let semPts = 0, semUnits = 0;
+                sem.subjects.forEach(subj => {
+                    if (!isNonAcademic(subj.code) && subj.grade !== null && subj.units !== null) {
+                        semPts += subj.grade * subj.units;
+                        semUnits += subj.units;
+                    }
+                });
+                if (semUnits > 0) chartData.push({ semester: sem.label, gwa: semPts / semUnits });
+            });
+        }
+        
+        if (chartData.length > 0) {
+            chart.renderChart(chartData);
+            const chartBase64 = chart.canvas.toDataURL("image/png");
+            chartHTML = `
+              <div style="margin: 0 auto 30px auto; text-align: center; max-width: 700px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fbfbf9;">
+                 <h4 style="margin: 0 0 10px 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px;">GWA Progression</h4>
+                 <img src="${chartBase64}" style="width: 100%; height: auto; display: block;" alt="GWA Chart" />
+              </div>
+            `;
+        }
+        chart.destroy();
+        document.body.removeChild(dummyContainer);
+    }
+    // ────────────────────────────────────────────────────────────────────────
+    
     let tableHTML = "";
     if (currentMode === "C") {
         tableHTML = `
@@ -299,6 +344,7 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
                     <p style="font-size: 22px;">${unitsVal}</p>
                 </div>
             </div>
+            ${chartHTML}
             ${tableHTML}
         </body>
         </html>
