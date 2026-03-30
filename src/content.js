@@ -14,6 +14,8 @@ const HONORS = [
   { label: "Cum Laude",       min: 1.3501, max: 1.6000, color: "var(--pup-honor-cumlaude)" },
 ];
 const MODE_KEY = "pup_gwa_mode";
+const CURR_KEY = "anoGWAmo_curriculum";
+const PROJ_KEY = "anoGWAmo_projections";
 
 function isNonAcademic(code) {
   const c = code.trim().toUpperCase();
@@ -42,6 +44,110 @@ function honorColor(label) {
 
 // ── Scrape ──────────────────────────────────────────────────────────────────
 
+async function triggerCurriculumSync(onComplete) {
+  const evalBtn = Array.from(document.querySelectorAll("a, button, .btn"))
+    .find(el => el.textContent.trim().includes("Curriculum Evaluation"));
+
+  if (!evalBtn) {
+    alert("anoGWAmo: 'Curriculum Evaluation' button not found on this page.");
+    return false;
+  }
+
+  evalBtn.click();
+
+  let attempts = 0;
+  const modalData = await new Promise((resolve) => {
+    const interval = setInterval(() => {
+      const modal = document.querySelector(".modal-content");
+      if (modal && modal.querySelector("table.modaltbldsp")) {
+        clearInterval(interval);
+        resolve(modal);
+      }
+      if (attempts++ > 40) { // Timeout after 20 seconds
+        clearInterval(interval);
+        resolve(null);
+      }
+    }, 500);
+  });
+
+  if (modalData) {
+    const data = scrapeCurriculumModal(modalData);
+    await extApi.storage.local.set({ [CURR_KEY]: data });
+    
+    // Auto-close modal using simple vanilla click since it might be handled differently
+    const closeBtn = modalData.querySelector('[data-dismiss="modal"], .close');
+    if (closeBtn) closeBtn.click();
+    else {
+      // Fallback close by removing backdrop manually if jQuery is failing
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) backdrop.remove();
+      modalData.parentElement.parentElement.classList.remove('show');
+      modalData.parentElement.parentElement.style.display = 'none';
+    }
+    
+    if (onComplete) onComplete(data);
+    return true;
+  }
+  
+  alert("anoGWAmo: Failed to load curriculum modal.");
+  return false;
+}
+
+function scrapeCurriculumModal(modal) {
+  const curriculum = [];
+  modal.querySelectorAll(".card.card-theme").forEach(card => {
+    const yearLabel = card.querySelector(".card-title")?.textContent.trim() ?? "Unknown Year";
+    
+    // Find all tables within this year's card
+    const tables = card.querySelectorAll("table.modaltbldsp");
+    tables.forEach(table => {
+      let semLabel = "Unknown Semester";
+      const wrapper = table.closest(".dataTables_wrapper");
+      if (wrapper && wrapper.previousElementSibling && wrapper.previousElementSibling.tagName === "H5") {
+        semLabel = wrapper.previousElementSibling.textContent.trim();
+      }
+
+      table.querySelectorAll("tbody tr").forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 8) return;
+        const code        = cells[0]?.textContent.trim() ?? "";
+        const description = cells[3]?.textContent.trim() ?? "";
+        const units       = parseFloat(cells[4]?.textContent.trim() ?? "");
+        const gradeRaw    = cells[7]?.textContent.trim() ?? "";
+        
+        if (!code) return;
+
+        let schoolYear = cells[5]?.textContent.trim() ?? "";
+        let semester   = cells[6]?.textContent.trim() ?? "";
+        // If empty (e.g. unenrolled), use the card's headers
+        if (!schoolYear) schoolYear = yearLabel;
+        if (!semester) semester = semLabel;
+
+        const grade = parseGrade(gradeRaw);
+        let finalUnits = isNaN(units) || units === 0 ? null : units;
+        
+        // Default academic subjects (non-PATHFIT/NSTP) to 3 units if 0/null
+        if (!isNonAcademic(code) && (finalUnits === null || finalUnits === 0)) {
+          finalUnits = 3.0;
+        }
+
+        curriculum.push({
+          code, description,
+          units:         finalUnits,
+          grade,
+          gradeRaw,
+          schoolYear,
+          semester,
+          isNonAcademic: isNonAcademic(code),
+          isPassed: row.classList.contains("passed") && grade !== null && grade <= 3.0,
+          isFailed: grade === 5.0 || gradeRaw.toLowerCase().includes("fail"),
+        });
+      });
+    });
+  });
+  return curriculum;
+}
+
 function scrapeAll() {
   const semesters = [];
   document.querySelectorAll(".card.card-theme").forEach(card => {
@@ -68,9 +174,16 @@ function scrapeAll() {
       const description = cells[2]?.textContent.trim() ?? "";
       const units       = parseFloat(cells[4]?.textContent.trim() ?? "");
       const gradeRaw    = cells[6]?.textContent.trim() ?? "";
+      let finalUnits = isNaN(units) || units === 0 ? null : units;
+      
+      // Default academic subjects to 3 units if 0/null
+      if (!isNonAcademic(code) && (finalUnits === null || finalUnits === 0)) {
+        finalUnits = 3.0;
+      }
+
       subjects.push({
         code, description,
-        units:         isNaN(units) ? null : units,
+        units:         finalUnits,
         grade:         parseGrade(gradeRaw),
         gradeRaw,
         status:        cells[7]?.textContent.trim() ?? "",
@@ -203,7 +316,7 @@ function disqAndPendingHTML(disqualifiers, pending) {
     </details>`;
 }
 
-const NOTE_HTML = `<p class="pup-gwa-note">ℹ For reference only. Official GWA is determined by the PUP Registrar. Transfer students from outside the PUP system are not eligible for Latin Honors.</p>`;
+const NOTE_HTML = `<p class="pup-gwa-note">ℹ️ For reference only. Official GWA is determined by the PUP Registrar. Transfer students from outside the PUP system are not eligible for Latin Honors.</p>`;
 
 // ── Manual mode render ─────────────────────────────────────────────────────────────
 
@@ -313,6 +426,203 @@ function renderModeB(semesters, disqData) {
     ${NOTE_HTML}`;
 }
 
+// ── Planner Mode ───────────────────────────────────────────────────────────────────
+
+function computeModeC(curriculum, userProjections = {}) {
+  let pts = 0, units = 0;
+  let remainingUnits = 0;
+  let pPts = 0, pUnits = 0;
+  let unprojectedUnits = 0;
+  const pendingBySem = {};
+  const pending = [];
+
+  curriculum.forEach(subj => {
+    if (subj.isNonAcademic || subj.units === null) return;
+    
+    if (subj.grade !== null && subj.grade <= 3.0) {
+       pts += subj.grade * subj.units;
+       units += subj.units;
+    } else if (subj.grade === null) {
+       remainingUnits += subj.units;
+       pending.push(subj);
+
+       const cleanYear = subj.schoolYear && subj.schoolYear.endsWith("Year") ? subj.schoolYear : `${subj.schoolYear}`;
+       const semKey = `${cleanYear} - ${subj.semester || "Unknown Sem"}`;
+       
+       if (!pendingBySem[semKey]) pendingBySem[semKey] = { units: 0, subjects: [] };
+       pendingBySem[semKey].subjects.push(subj);
+       pendingBySem[semKey].units += subj.units;
+       
+       const semProjGrade = userProjections[semKey] !== undefined ? userProjections[semKey] : null;
+       const globalProjGrade = userProjections["GLOBAL"] !== undefined ? userProjections["GLOBAL"] : null;
+       
+       let projGrade = null;
+       if (semProjGrade !== null && semProjGrade !== "") projGrade = semProjGrade;
+       else if (globalProjGrade !== null && globalProjGrade !== "") projGrade = globalProjGrade;
+
+       if (projGrade !== null) {
+          const p = parseFloat(projGrade);
+          pPts += p * subj.units;
+          pUnits += subj.units;
+       } else {
+          unprojectedUnits += subj.units;
+       }
+    }
+  });
+
+  const currentGwa = units > 0 ? pts / units : null;
+
+  let projectedGwa = null;
+  const totalU = units + remainingUnits;
+  if (remainingUnits > 0) {
+     projectedGwa = (pts + pPts) / (totalU);
+  } else {
+     projectedGwa = currentGwa;
+  }
+
+  const requiredAverages = HONORS.map(h => {
+     if (remainingUnits === 0) return { ...h, req: null };
+     const req = (h.max * totalU - pts) / remainingUnits;
+     return { ...h, req };
+  });
+
+  return { 
+    gwa: currentGwa, 
+    projectedGwa, 
+    totalUnits: units, 
+    totalAcademicUnits: totalU, 
+    remainingUnits, 
+    pUnits, 
+    unprojectedUnits, 
+    pendingBySem, 
+    pending,
+    requiredAverages 
+  };
+}
+
+function renderModeC(curriculum, userProjections) {
+  if (!curriculum || curriculum.length === 0) {
+    return `
+      <div class="pup-gwa-main">
+        <div class="pup-gwa-label">Curriculum Planner</div>
+        <p class="muted" style="margin: 10px 0;">We need to load your entire study journey first.</p>
+        <button id="pup-sync-btn" class="pup-sync-btn secondary">📊 Click to Sync Curriculum</button>
+        <p class="pup-gwa-note" style="margin-top: 5px;">This will quickly open and close the Curriculum Evaluation modal to copy your subjects.</p>
+      </div>`;
+  }
+
+  const { gwa, projectedGwa, totalUnits, totalAcademicUnits, remainingUnits, pUnits, unprojectedUnits, pending, pendingBySem, requiredAverages } = computeModeC(curriculum, userProjections);
+  const currentHonor = honorFor(gwa);
+  const globalProj = userProjections["GLOBAL"] ?? "";
+
+  let targetsHTML = "";
+  if (remainingUnits > 0) {
+    targetsHTML = `<div class="pup-targets-container">
+      <h4 class="pup-targets-title">Target Average for Remaining ${remainingUnits} Units</h4>
+      <div class="pup-targets-grid">
+        ${requiredAverages.map(h => {
+          let msg = "";
+          let cls = "";
+          if (h.req < 1.0) { msg = "Impossible"; cls = "target-impossible"; }
+          else if (h.req > 3.0) { msg = "Guaranteed"; cls = "target-guaranteed"; }
+          else { msg = `≤ ${h.req.toFixed(4)}`; cls = "target-possible"; }
+          
+          return `<div class="pup-target-card ${cls}" style="border-top-color: ${h.color}">
+            <div class="pup-target-label">${h.label}</div>
+            <div class="pup-target-val">${msg}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  } else {
+     targetsHTML = `<div class="pup-targets-container">
+       <p class="muted">All academic units completed. No remaining units to project.</p>
+     </div>`;
+  }
+
+  let simulatorHTML = "";
+  if (remainingUnits > 0) {
+    const pGwaStr = projectedGwa !== null ? projectedGwa.toFixed(4) : "—";
+    const pHonorVal = honorFor(projectedGwa);
+    const resultColor = projectedGwa !== null ? honorColor(pHonorVal) : "var(--pup-text-muted)";
+    
+    let subtext = "";
+    if (unprojectedUnits > 0 && pUnits > 0) {
+      subtext = `<div style="font-size: 11px; margin-top: 6px; color: var(--pup-tag-warn-text);">${unprojectedUnits} units still missing projections (counted as 0 contribution).</div>`;
+    } else if (unprojectedUnits > 0 && pUnits === 0) {
+      subtext = `<div style="font-size: 11px; margin-top: 6px; color: var(--pup-text-muted);">Select targets below to see your Final GWA prediction.</div>`;
+    }
+
+    simulatorHTML = `
+      <div class="pup-simulator-card">
+        <label class="pup-simulator-text" for="pup-global-proj">
+          Set a master baseline target: 
+          <select id="pup-global-proj" class="pup-grade-select" data-code="GLOBAL" style="margin: 0 4px;">
+            <option value="">--</option>
+            ${[1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0].map(v => 
+              `<option value="${v.toFixed(2)}" ${parseFloat(globalProj) === v ? "selected" : ""}>${v.toFixed(2)}</option>`
+            ).join("")}
+          </select>
+        </label>
+        <div class="pup-simulator-result" style="color: ${resultColor}">
+          <span class="pup-sim-label">Projected Final GWA</span>
+          <span class="pup-sim-val">${pGwaStr}</span>
+          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${pHonorVal}</span>` : ""}
+        </div>
+        ${subtext}
+      </div>
+    `;
+  }
+
+  const pendingSemsHTML = pending.length > 0
+    ? Object.entries(pendingBySem).map(([semKey, data]) => {
+      const proj = userProjections[semKey] ?? "";
+      let labelCls = proj === "" && globalProj !== "" ? "muted-sm" : "";
+      return `
+      <div class="pup-pending-sem">
+        <div class="pup-pending-sem-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pup-card-border); padding-bottom: 4px; margin-bottom: 6px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--pup-text-muted); text-transform: uppercase;">${semKey}</span>
+          <div style="font-size: 11px; font-weight: 600; text-transform: none; display: flex; align-items: center;" class="${labelCls}">
+            Average Target: 
+            <select class="pup-grade-select" data-code="${semKey}" style="margin-left: 6px; font-size: 11px; padding: 2px 4px; min-width: 50px;">
+              <option value="">${globalProj ? `(Global ${parseFloat(globalProj).toFixed(2)})` : "--"}</option>
+              ${[1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0].map(v => 
+                `<option value="${v.toFixed(2)}" ${parseFloat(proj) === v ? "selected" : ""}>${v.toFixed(2)}</option>`
+              ).join("")}
+            </select>
+          </div>
+        </div>
+        <ul class="pup-subj-list" style="margin-top: 6px; padding-left: 0;">
+          ${data.subjects.map(s => `<li><span class="subj-code">${s.code}</span> <span class="pup-subj-desc">${s.description}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
+        </ul>
+      </div>
+    `}).join("")
+    : `<p class="muted">No pending academic subjects found. You're done!</p>`;
+
+  return `
+    <div class="pup-gwa-main">
+      <div class="pup-gwa-score" style="color:${honorColor(currentHonor)}">
+        ${gwa !== null ? gwa.toFixed(4) : "N/A"}
+      </div>
+      <div class="pup-gwa-label">Current Finalized GWA</div>
+      <div class="pup-gwa-units">${totalUnits} / ${totalAcademicUnits} total academic units finalized</div>
+    </div>
+    <div class="pup-honors-table">${honorsTableHTML(gwa)}</div>
+    ${targetsHTML}
+    ${simulatorHTML}
+    <details class="pup-section" open>
+      <summary>🗓️ Remaining Subjects Details (${pending.length})</summary>
+      <div class="pup-pending-scroll-area" style="padding-top: 8px;">
+        ${pendingSemsHTML}
+      </div>
+    </details>
+    <div style="text-align: right; margin-top: 10px;">
+      <button id="pup-sync-btn-mini" class="pup-sync-btn secondary">↻ Re-Sync Curriculum</button>
+    </div>
+  `;
+}
+
+
 // ── Theme Detection ─────────────────────────────────────────────────────────
 
 /**
@@ -362,9 +672,14 @@ async function createPanel(semesters) {
   const disqData = checkDisqualifiers(semesters);
   
   let currentMode = "B";
+  let curriculum = [];
+  let userProjections = {};
+
   try {
-    const data = await extApi.storage.local.get([MODE_KEY]);
+    const data = await extApi.storage.local.get([MODE_KEY, CURR_KEY, PROJ_KEY]);
     if (data[MODE_KEY]) currentMode = data[MODE_KEY];
+    if (data[CURR_KEY]) curriculum = data[CURR_KEY];
+    if (data[PROJ_KEY]) userProjections = data[PROJ_KEY];
   } catch(e) { console.error(e); }
 
   try {
@@ -389,6 +704,11 @@ async function createPanel(semesters) {
     if (chartInstance) {
       chartInstance.destroy();
       chartInstance = null;
+    }
+
+    if (currentMode === "C") {
+      container.style.display = 'none';
+      return;
     }
 
     const chartData = [];
@@ -434,11 +754,16 @@ async function createPanel(semesters) {
   }
 
   function render() {
+    // Preserve scroll position
+    const oldBody = panel.querySelector(".pup-gwa-body");
+    const scrollTop = oldBody ? oldBody.scrollTop : 0;
+
     const rawHTML = `
       <div class="pup-gwa-header">
         <span class="pup-gwa-title">🎓 anoGWAmo?</span>
         <div class="pup-header-controls">
           <div class="pup-mode-switcher">
+            <button type="button" class="mode-btn ${currentMode === "C" ? "active" : ""}" data-mode="C">Planner</button>
             <button type="button" class="mode-btn ${currentMode === "A" ? "active" : ""}" data-mode="A">Manual</button>
             <button type="button" class="mode-btn ${currentMode === "B" ? "active" : ""}" data-mode="B">Site GPA</button>
           </div>
@@ -447,7 +772,7 @@ async function createPanel(semesters) {
       </div>
       <div class="pup-gwa-body">
         <div id="pup-gwa-chart-wrapper" style="width: 100%; margin-bottom: 24px; display: none;"></div>
-        ${currentMode === "B" ? renderModeB(semesters, disqData) : renderModeA(semesters, disqData)}
+        ${currentMode === "C" ? renderModeC(curriculum, userProjections) : (currentMode === "B" ? renderModeB(semesters, disqData) : renderModeA(semesters, disqData))}
       </div>`;
 
     const parser = new DOMParser();
@@ -458,6 +783,33 @@ async function createPanel(semesters) {
       btn.addEventListener("click", () => {
         currentMode = btn.dataset.mode;
         try { extApi.storage.local.set({ [MODE_KEY]: currentMode }); } catch(_) {}
+        render();
+      });
+    });
+
+    const newBody = panel.querySelector(".pup-gwa-body");
+    if (newBody && scrollTop) newBody.scrollTop = scrollTop;
+
+    const syncBtns = panel.querySelectorAll(".pup-sync-btn");
+    syncBtns.forEach(btn => btn.addEventListener("click", async () => {
+      const origText = btn.textContent;
+      btn.textContent = "⏳ Syncing...";
+      btn.style.pointerEvents = "none";
+      await triggerCurriculumSync(async (data) => {
+        curriculum = data;
+        render();
+      });
+      btn.textContent = origText;
+      btn.style.pointerEvents = "all";
+    }));
+
+    panel.querySelectorAll(".pup-grade-select").forEach(sel => {
+      sel.addEventListener("change", (e) => {
+        const cd = e.target.dataset.code;
+        const val = e.target.value;
+        if (val === "") delete userProjections[cd];
+        else userProjections[cd] = val;
+        try { extApi.storage.local.set({ [PROJ_KEY]: userProjections }); } catch(_) {}
         render();
       });
     });
