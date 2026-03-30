@@ -6,41 +6,11 @@
  */
 
 import extApi from "webextension-polyfill";
-
-const NON_ACADEMIC_PREFIXES = ["PATHFIT", "NSTP", "CWTS", "ROTC"];
-const HONORS = [
-  { label: "Summa Cum Laude", min: 1.0000, max: 1.1500, color: "var(--pup-honor-summa)" },
-  { label: "Magna Cum Laude", min: 1.1501, max: 1.3500, color: "var(--pup-honor-magna)" },
-  { label: "Cum Laude",       min: 1.3501, max: 1.6000, color: "var(--pup-honor-cumlaude)" },
-];
-const MODE_KEY = "pup_gwa_mode";
-const CURR_KEY = "anoGWAmo_curriculum";
-const PROJ_KEY = "anoGWAmo_projections";
-
-function isNonAcademic(code) {
-  const c = code.trim().toUpperCase();
-  return NON_ACADEMIC_PREFIXES.some(p => c.startsWith(p));
-}
-
-function parseGrade(raw) {
-  const t = (raw ?? "").trim();
-  if (!t) return null;
-  const n = parseFloat(t);
-  return isNaN(n) ? null : n;
-}
-
-function honorFor(gwa) {
-  if (gwa === null) return null;
-  for (const h of HONORS) if (gwa >= h.min && gwa <= h.max) return h.label;
-  return null;
-}
-
-function honorColor(label) {
-  if (label === "Summa Cum Laude") return "var(--pup-honor-summa)";
-  if (label === "Magna Cum Laude") return "var(--pup-honor-magna)";
-  if (label === "Cum Laude")       return "var(--pup-honor-cumlaude)";
-  return "var(--pup-honor-none)";
-}
+import { 
+  HONORS, MODE_KEY, CURR_KEY, PROJ_KEY, 
+  isNonAcademic, parseGrade, honorFor, honorColor, 
+  computeModeA, computeModeB, computeModeC, exportToPDF 
+} from "./core/utils.js";
 
 // ── Scrape ──────────────────────────────────────────────────────────────────
 
@@ -230,41 +200,7 @@ function checkDisqualifiers(semesters) {
   return { disqualifiers, pending };
 }
 
-// ── Manual Mode ───────────────────────────────────────────────────────────────────
-
-function computeModeA(semesters) {
-  let pts = 0, units = 0;
-  const included = [], excluded = [];
-  semesters.forEach(sem => {
-    sem.subjects.forEach(subj => {
-      if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) {
-        pts += subj.grade * subj.units; units += subj.units;
-        included.push({ ...subj, semLabel: sem.label });
-      } else {
-        excluded.push({ ...subj, semLabel: sem.label });
-      }
-    });
-  });
-  return { gwa: units > 0 ? pts / units : null, totalUnits: units, included, excluded };
-}
-
-// ── Site GPA Mode ───────────────────────────────────────────────────────────────────
-
-function computeModeB(semesters) {
-  let pts = 0, units = 0;
-  const breakdown = [], skipped = [];
-  semesters.forEach(sem => {
-    if (sem.siteGpa === null) { skipped.push(`${sem.label} – no site GPA available`); return; }
-    let semUnits = 0;
-    sem.subjects.forEach(subj => {
-      if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) semUnits += subj.units;
-    });
-    if (semUnits === 0) { skipped.push(`${sem.label} – 0 academic units with grades`); return; }
-    pts += sem.siteGpa * semUnits; units += semUnits;
-    breakdown.push({ label: sem.label, siteGpa: sem.siteGpa, units: semUnits });
-  });
-  return { gwa: units > 0 ? pts / units : null, totalUnits: units, breakdown, skipped };
-}
+// Computations are now handled by core/utils.js
 
 // ── Shared HTML ───────────────────────────────────────────────────────────────
 
@@ -437,79 +373,7 @@ function renderModeB(semesters, disqData) {
     ${NOTE_HTML}`;
 }
 
-// ── Planner Mode ───────────────────────────────────────────────────────────────────
-
-function computeModeC(curriculum, userProjections = {}) {
-  let pts = 0, units = 0;
-  let remainingUnits = 0;
-  let pPts = 0, pUnits = 0;
-  let unprojectedUnits = 0;
-  const pendingBySem = {};
-  const pending = [];
-
-  curriculum.forEach(subj => {
-    if (subj.isNonAcademic || subj.units === null) return;
-    
-    if (subj.grade !== null && subj.grade <= 3.0) {
-       pts += subj.grade * subj.units;
-       units += subj.units;
-    } else if (subj.grade === null) {
-       remainingUnits += subj.units;
-       pending.push(subj);
-
-       const cleanYear = subj.schoolYear && subj.schoolYear.endsWith("Year") ? subj.schoolYear : `${subj.schoolYear}`;
-       const semKey = `${cleanYear} - ${subj.semester || "Unknown Sem"}`;
-       
-       if (!pendingBySem[semKey]) pendingBySem[semKey] = { units: 0, subjects: [] };
-       pendingBySem[semKey].subjects.push(subj);
-       pendingBySem[semKey].units += subj.units;
-       
-       const semProjGrade = userProjections[semKey] !== undefined ? userProjections[semKey] : null;
-       const globalProjGrade = userProjections["GLOBAL"] !== undefined ? userProjections["GLOBAL"] : null;
-       
-       let projGrade = null;
-       if (semProjGrade !== null && semProjGrade !== "") projGrade = semProjGrade;
-       else if (globalProjGrade !== null && globalProjGrade !== "") projGrade = globalProjGrade;
-
-       if (projGrade !== null) {
-          const p = parseFloat(projGrade);
-          pPts += p * subj.units;
-          pUnits += subj.units;
-       } else {
-          unprojectedUnits += subj.units;
-       }
-    }
-  });
-
-  const currentGwa = units > 0 ? pts / units : null;
-
-  let projectedGwa = null;
-  const totalU = units + remainingUnits;
-  if (remainingUnits > 0) {
-     projectedGwa = (pts + pPts) / (totalU);
-  } else {
-     projectedGwa = currentGwa;
-  }
-
-  const requiredAverages = HONORS.map(h => {
-     if (remainingUnits === 0) return { ...h, req: null };
-     const req = (h.max * totalU - pts) / remainingUnits;
-     return { ...h, req };
-  });
-
-  return { 
-    gwa: currentGwa, 
-    projectedGwa, 
-    totalUnits: units, 
-    totalAcademicUnits: totalU, 
-    remainingUnits, 
-    pUnits, 
-    unprojectedUnits, 
-    pendingBySem, 
-    pending,
-    requiredAverages 
-  };
-}
+// Planner logic handled by core/utils.js
 
 function renderModeC(curriculum, userProjections) {
   if (!curriculum || curriculum.length === 0) {
@@ -830,179 +694,19 @@ async function createPanel(semesters, studentInfo) {
 
     const exportBtn = panel.querySelector(".pup-export-btn");
     exportBtn.addEventListener("click", () => {
-       const iframe = document.createElement('iframe');
-       iframe.style.position = 'absolute';
-       iframe.style.width = '0px';
-       iframe.style.height = '0px';
-       iframe.style.border = 'none';
-       document.body.appendChild(iframe);
-
-       let gwaVal = null;
-       let unitsVal = 0;
-       if (currentMode === "A") {
-          const res = computeModeA(semesters);
-          gwaVal = res.gwa; unitsVal = res.totalUnits;
-       } else if (currentMode === "B") {
-          const res = computeModeB(semesters);
-          gwaVal = res.gwa; unitsVal = res.totalUnits;
-       } else if (currentMode === "C") {
-          const res = computeModeC(curriculum, userProjections);
-          gwaVal = res.projectedGwa; unitsVal = res.totalUnits + res.remainingUnits; // Total planned units
-       }
-
-       const title = currentMode === "C" ? "Projected Academic Plan" : "Academic Record";
-       const nameStr = studentInfo ? `${studentInfo.name} (${studentInfo.id})` : "Anonymous Student";
-       const gwaFormatted = gwaVal !== null ? gwaVal.toFixed(4) : "N/A";
-
-       let tableHTML = "";
-       if (currentMode === "C") {
-           tableHTML = `
-               <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                   <thead>
-                       <tr style="border-bottom: 2px solid #800000; text-align: left; font-size: 14px;">
-                           <th style="padding: 8px; width: 15%;">Code</th>
-                           <th style="padding: 8px; width: 55%;">Description</th>
-                           <th style="padding: 8px; width: 15%;">Units</th>
-                           <th style="padding: 8px; width: 15%;">Grade/Target</th>
-                       </tr>
-                   </thead>
-                   <tbody>
-                       ${curriculum.filter(s => !s.isNonAcademic && s.units !== null).map(s => {
-                           let gradeStr = s.grade !== null ? s.grade.toFixed(2) : "";
-                           let isProj = false;
-                           if (s.grade === null) {
-                              const yearPart = (s.schoolYear || "UNKNOWN").replace(/(FOURTH|THIRD|SECOND|FIRST) YEAR/, "$1 YEAR");
-                              const semKey = `${yearPart} - ${s.semester || "UKNOWN SEM"}`;
-                              const p = parseFloat(userProjections[semKey] || userProjections["GLOBAL"] || null);
-                              if (!isNaN(p)) { gradeStr = p.toFixed(2); isProj = true; }
-                              else gradeStr = "—";
-                           }
-                           return `
-                           <tr style="border-bottom: 1px solid #ddd; font-size: 13px; ${isProj ? 'color: #8C2222; font-style: italic;' : ''}">
-                               <td style="padding: 8px; font-weight: 600;">${s.code}</td>
-                               <td style="padding: 8px;">${s.description} ${isProj ? '<span style="font-size:10px; color:#aaa;">(Proj)</span>' : ''}</td>
-                               <td style="padding: 8px;">${s.units}</td>
-                               <td style="padding: 8px; font-weight: bold;">${gradeStr}</td>
-                           </tr>`;
-                       }).join("")}
-                   </tbody>
-               </table>
-           `;
-       } else {
-           tableHTML = `
-               <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 20px;">
-                   <thead>
-                       <tr style="text-align: left; color: #666; font-size: 11px; text-transform: uppercase;">
-                           <th style="padding: 4px 8px; width: 15%;">Code</th>
-                           <th style="padding: 4px 8px; width: 55%;">Description</th>
-                           <th style="padding: 4px 8px; width: 15%;">Units</th>
-                           <th style="padding: 4px 8px; width: 15%;">Grade</th>
-                       </tr>
-                   </thead>
-                   ${semesters.map(sem => `
-                   <tbody>
-                       <tr>
-                           <td colspan="4" style="padding-top: 24px; padding-bottom: 4px; font-weight: bold; font-size: 14px; color: #800000; border-bottom: 1px solid #ddd;">${sem.label}</td>
-                       </tr>
-                       ${sem.subjects.map(s => `
-                           <tr style="border-bottom: 1px solid #f0f0f0; ${s.isNonAcademic ? 'color: #999;' : ''}">
-                               <td style="padding: 6px 8px; font-weight: 600;">${s.code}</td>
-                               <td style="padding: 6px 8px;">${s.description}</td>
-                               <td style="padding: 6px 8px;">${s.units !== null ? s.units : '—'}</td>
-                               <td style="padding: 6px 8px; font-weight: bold;">${s.gradeRaw || '—'}</td>
-                           </tr>
-                       `).join("")}
-                   </tbody>
-                   `).join("")}
-               </table>
-           `;
-       }
-
-       const docContent = `
-           <!DOCTYPE html>
-           <html>
-           <head>
-               <title>anoGWAmo? Report</title>
-               <style>
-                   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
-                   body {
-                       font-family: 'Outfit', sans-serif;
-                       color: #2A2424;
-                       padding: 40px;
-                       line-height: 1.5;
-                   }
-                   .header {
-                       text-align: center;
-                       border-bottom: 3px solid #800000;
-                       padding-bottom: 20px;
-                       margin-bottom: 30px;
-                   }
-                   .title {
-                       font-family: 'Playfair Display', serif;
-                       font-size: 24px;
-                       color: #4A0404;
-                       margin: 0 0 8px 0;
-                   }
-                   .student-info { margin: 5px 0; font-size: 14px; font-weight: 600; font-style: italic; }
-                   .summary {
-                       display: flex;
-                       justify-content: space-around;
-                       background: #fbfbf9;
-                       padding: 16px;
-                       border-radius: 8px;
-                       border: 1px solid #ddd;
-                       margin-bottom: 30px;
-                       text-align: center;
-                   }
-                   .summary-box h3 {
-                       margin: 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px;
-                   }
-                   .summary-box p {
-                       margin: 5px 0 0 0; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: #4A0404;
-                   }
-                   @media print {
-                       body { -webkit-print-color-adjust: exact; padding: 0; }
-                   }
-               </style>
-           </head>
-           <body>
-               <div class="header">
-                   <h1 class="title">${title}</h1>
-                   <p class="student-info">${nameStr}</p>
-                   <p style="margin:0; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Calculation Mode: ${currentMode === "C" ? "Planner" : (currentMode === "A" ? "Manual" : "Site GPA")}</p>
-               </div>
-               <div class="summary">
-                   <div class="summary-box">
-                       <h3>${currentMode === "C" ? "Projected GWA" : "Cumulative GWA"}</h3>
-                       <p>${gwaFormatted}</p>
-                   </div>
-                   <div class="summary-box">
-                       <h3>Academic Units</h3>
-                       <p style="font-size: 22px;">${unitsVal}</p>
-                   </div>
-               </div>
-               ${tableHTML}
-           </body>
-           </html>
-       `;
-
-       const doc = iframe.contentWindow.document;
-       doc.open();
-       doc.write(docContent);
-       doc.close();
-
        exportBtn.textContent = "⏳";
        exportBtn.style.pointerEvents = "none";
-
-       setTimeout(() => {
-           iframe.contentWindow.focus();
-           iframe.contentWindow.print();
-           setTimeout(() => {
-             document.body.removeChild(iframe);
-             exportBtn.textContent = "📥";
-             exportBtn.style.pointerEvents = "all";
-           }, 1000);
-       }, 500);
+       exportToPDF({
+           currentMode,
+           studentInfo,
+           semesters,
+           curriculum,
+           userProjections,
+           onComplete: () => {
+               exportBtn.textContent = "📥";
+               exportBtn.style.pointerEvents = "all";
+           }
+       });
     });
 
     const toggleBtn = panel.querySelector(".pup-gwa-toggle");
