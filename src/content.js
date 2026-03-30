@@ -791,7 +791,8 @@ async function createPanel(semesters) {
     if (newBody && scrollTop) newBody.scrollTop = scrollTop;
 
     const syncBtns = panel.querySelectorAll(".pup-sync-btn");
-    syncBtns.forEach(btn => btn.addEventListener("click", async () => {
+    syncBtns.forEach(btn => btn.addEventListener("click", async (e) => {
+      e.preventDefault();
       const origText = btn.textContent;
       btn.textContent = "⏳ Syncing...";
       btn.style.pointerEvents = "none";
