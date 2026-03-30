@@ -276,3 +276,41 @@ button:hover {
   border-color: var(--pup-metallic-gold);
   box-shadow: 0 6px 16px rgba(197, 160, 89, 0.15);
 }
+
+/* Planner Specifics */
+.planner-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.planner-targets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0 20px 20px;
+  animation: puploadStagger 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s forwards;
+  opacity: 0;
+}
+
+.pl-target-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--pup-card-summary-bg);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid var(--pup-card-border);
+}
+
+.pl-t-lab {
+  font-weight: 600;
+  color: var(--pup-text-muted);
+}
+
+.pl-t-val {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--pup-border-bold);
+}
