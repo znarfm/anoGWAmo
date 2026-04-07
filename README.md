@@ -3,9 +3,9 @@
   <h1>anoGWAmo?</h1>
   <p><strong>The ultimate academic companion for PUP students.</strong></p>
 
-  [![Chrome](https://img.shields.io/badge/Chrome-Compatible-success.svg)](https://www.google.com/chrome/)
-  [![Firefox](https://img.shields.io/badge/Firefox-Compatible-success.svg)](https://www.mozilla.org/firefox/)
-  [![Edge](https://img.shields.io/badge/Edge-Compatible-success.svg)](https://www.microsoft.com/edge/)
+  [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/dfhmekddimnjbjllhocmejnbhdpfmhpe?logo=google-chrome&logoColor=white&label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/anogwamo/dfhmekddimnjbjllhocmejnbhdpfmhpe)
+  [![Firefox Add-ons](https://img.shields.io/amo/v/anogwamo?logo=firefox-browser&logoColor=white&label=Firefox%20Add-ons)](https://addons.mozilla.org/en-US/firefox/addon/anogwamo/)
+  [![Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft%20Edge-Add--ons-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/anogwamo/kgjfkhcbojllbmdpahhnagijnfpoeedg)
 </div>
 
 ---
@@ -32,6 +32,7 @@
 ## 🛠️ How it Works
 
 The extension computes your GWA using the standard weighted formula:
+
 $$GWA = \frac{\sum(\text{Grade} \times \text{Units})}{\sum(\text{Units})}$$
 
 ### Honor Thresholds
@@ -52,21 +53,25 @@ The extension flags any records that breach academic honor requirements:
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Installation
 
-### Installation
+Install **anoGWAmo?** from your browser's extension store:
 
-1. **Download the Extension**:
-   - Go to the [Releases](https://github.com/znarfm/anoGWAmo/releases) page and download the latest `.zip` file according to your browser.
-   - Extract the contents of the ZIP folder to a convenient location on your computer.
-   - *Alternatively, you can clone this repository if you wish to build from source.*
-2. **Open Extensions Page**:
-   - `chrome://extensions` (Chromium: Chrome, Edge, Brave, etc.)
-   - `about:debugging#/runtime/this-firefox` (Firefox)
-3. **Load the Extension**:
-   - **Chromium**: Enable **Developer Mode**, click **Load unpacked**, and select the extracted folder.
-   - **Firefox**: Click **Load Temporary Add-on...** and select `manifest.json` from the extracted folder.
-4. **Login to PUP SIS** and navigate to the **Grades** page to see the dashboard.
+- [**Chrome Web Store**](https://chromewebstore.google.com/detail/anogwamo/dfhmekddimnjbjllhocmejnbhdpfmhpe)
+- [**Firefox Add-ons**](https://addons.mozilla.org/en-US/firefox/addon/anogwamo/)
+- [**Microsoft Edge Add-ons**](https://microsoftedge.microsoft.com/addons/detail/anogwamo/kgjfkhcbojllbmdpahhnagijnfpoeedg)
+
+### For Developers
+
+If you want to build from source or load the extension manually:
+
+1. **Clone the repository**: `git clone https://github.com/znarfm/anoGWAmo.git`
+2. **Install dependencies**: `bun install`
+3. **Build the extension**: `bun run build.ts`
+4. **Load the extension**:
+   - **Chromium**: Go to `chrome://extensions`, enable **Developer Mode**, and click **Load unpacked** selecting the `dist` folder.
+   - **Firefox**: Go to `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on...** and select `manifest.json` from the `dist` folder.
+5. **Login to PUP SIS** and navigate to the **Grades** page to see the dashboard.
 
 ---
 
