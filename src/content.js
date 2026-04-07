@@ -621,7 +621,6 @@ async function createPanel(semesters, studentInfo) {
     chartData.reverse();
 
     chartInstance = new GWAChart(container, {
-      targetGWA: 1.60,
       lineColor: '#800000', // PUP Maroon
       fillStart: 'rgba(128, 0, 0, 0.3)',
       fillEnd: 'rgba(128, 0, 0, 0.0)'
@@ -637,7 +636,7 @@ async function createPanel(semesters, studentInfo) {
 
     const rawHTML = `
       <div class="pup-gwa-header">
-        <a href="https://github.com/znarfm/anoGWAmo" target="_blank"><span class="pup-gwa-title">🎓 anoGWAmo?</span></a>
+        <span class="pup-gwa-title"><a href="https://github.com/znarfm/anoGWAmo" target="_blank">🎓 anoGWAmo?</a></span>
         <div class="pup-header-controls">
           <div class="pup-mode-switcher">
             <button type="button" class="mode-btn ${currentMode === "C" ? "active" : ""}" data-mode="C">Planner</button>
