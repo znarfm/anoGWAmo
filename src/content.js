@@ -636,7 +636,7 @@ async function createPanel(semesters, studentInfo) {
 
     const rawHTML = `
       <div class="pup-gwa-header">
-        <span class="pup-gwa-title"><a href="https://github.com/znarfm/anoGWAmo" target="_blank">🎓 anoGWAmo?</a></span>
+        <a href="https://github.com/znarfm/anoGWAmo" target="_blank"><span class="pup-gwa-title">🎓 anoGWAmo?</span></a>
         <div class="pup-header-controls">
           <div class="pup-mode-switcher">
             <button type="button" class="mode-btn ${currentMode === "C" ? "active" : ""}" data-mode="C">Planner</button>
