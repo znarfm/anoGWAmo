@@ -19,12 +19,11 @@ export default class GWAChart {
     this.ctx = this.canvas.getContext('2d');
     
     this.options = {
-      lineColor: '#800000', // PUP Maroon
+      lineColor: '#800000',
       fillStart: 'rgba(128, 0, 0, 0.4)',
       fillEnd: 'rgba(128, 0, 0, 0.0)',
-      targetGWA: null,
-      targetColor: '#ff6b6b',
       gridColor: '#e0e0e0',
+
       textColor: '#888',
       pointRadius: 4,
       pointHoverRadius: 6,
@@ -206,14 +205,10 @@ export default class GWAChart {
     if (this.data.length === 0) return;
     
     this.drawGrid();
-    
-    if (this.options.targetGWA !== null) {
-        this.drawTargetLine(this.options.targetGWA);
-    }
-    
     this.drawLine();
     this.drawPoints();
   }
+
 
   drawGrid() {
     const { ctx, cssWidth: width, cssHeight: height } = this;
@@ -259,34 +254,8 @@ export default class GWAChart {
     }
   }
 
-  drawTargetLine(target) {
-     const { ctx, cssWidth: width } = this;
-     const { targetColor } = this.options;
-     const margins = this.margins;
-     
-     if (target < this.topGwa || target > this.bottomGwa) return;
-     
-     const yRange = this.bottomGwa - this.topGwa;
-     const normalized = (target - this.topGwa) / yRange;
-     const y = margins.top + normalized * this.innerHeight;
-     
-     ctx.save();
-     ctx.strokeStyle = targetColor;
-     ctx.lineWidth = 1.5;
-     ctx.setLineDash([6, 4]);
-     ctx.beginPath();
-     ctx.moveTo(margins.left, Math.round(y) - 0.5);
-     ctx.lineTo(width - margins.right, Math.round(y) - 0.5);
-     ctx.stroke();
-     ctx.restore();
-     
-     ctx.fillStyle = targetColor;
-     ctx.textAlign = 'left';
-     ctx.textBaseline = 'bottom';
-     ctx.fillText(`Target (${target})`, margins.left, y - 4);
-  }
-
   drawLine() {
+
     const { ctx, cssHeight: height } = this;
     const { lineColor, fillStart, fillEnd } = this.options;
     const margins = this.margins;
