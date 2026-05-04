@@ -11,6 +11,17 @@ export const MODE_KEY = "pup_gwa_mode";
 export const CURR_KEY = "anoGWAmo_curriculum";
 export const PROJ_KEY = "anoGWAmo_projections";
 
+export function escapeHTML(str) {
+  if (!str || typeof str !== 'string') return str;
+  return str.replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  })[m]);
+}
+
 export function isNonAcademic(code) {
   const c = code.trim().toUpperCase();
   return NON_ACADEMIC_PREFIXES.some(p => c.startsWith(p));
@@ -60,12 +71,12 @@ export function computeModeB(semesters) {
   let pts = 0, units = 0;
   const breakdown = [], skipped = [];
   semesters.forEach(sem => {
-    if (sem.siteGpa === null) { skipped.push(`${sem.label} – no site GPA available`); return; }
+    if (sem.siteGpa === null) { skipped.push(`${escapeHTML(sem.label)} – no site GPA available`); return; }
     let semUnits = 0;
     sem.subjects.forEach(subj => {
       if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) semUnits += subj.units;
     });
-    if (semUnits === 0) { skipped.push(`${sem.label} – 0 academic units with grades`); return; }
+    if (semUnits === 0) { skipped.push(`${escapeHTML(sem.label)} – 0 academic units with grades`); return; }
     pts += sem.siteGpa * semUnits; units += semUnits;
     breakdown.push({ label: sem.label, siteGpa: sem.siteGpa, units: semUnits });
   });
@@ -169,8 +180,8 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
        gwaVal = res.projectedGwa; unitsVal = res.totalUnits + res.remainingUnits; // Total planned units
     }
 
-    const title = currentMode === "C" ? "Projected Academic Plan" : "Academic Record";
-    const nameStr = studentInfo && studentInfo.name ? `${studentInfo.name} ${studentInfo.id ? `(${studentInfo.id})` : ''}` : "Anonymous Student";
+    const title = escapeHTML(currentMode === "C" ? "Projected Academic Plan" : "Academic Record");
+    const nameStr = escapeHTML(studentInfo && studentInfo.name ? `${studentInfo.name} ${studentInfo.id ? `(${studentInfo.id})` : ''}` : "Anonymous Student");
     const gwaFormatted = gwaVal !== null ? gwaVal.toFixed(4) : "N/A";
 
     // ── Generate Chart Image ──────────────────────────────────────────────────
@@ -242,8 +253,8 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
                         }
                         return `
                         <tr style="border-bottom: 1px solid #ddd; font-size: 13px; ${isProj ? 'color: #8C2222; font-style: italic;' : ''}">
-                            <td style="padding: 8px; font-weight: 600;">${s.code}</td>
-                            <td style="padding: 8px;">${s.description} ${isProj ? '<span style="font-size:10px; color:#aaa;">(Proj)</span>' : ''}</td>
+                            <td style="padding: 8px; font-weight: 600;">${escapeHTML(s.code)}</td>
+                            <td style="padding: 8px;">${escapeHTML(s.description)} ${isProj ? '<span style="font-size:10px; color:#aaa;">(Proj)</span>' : ''}</td>
                             <td style="padding: 8px;">${s.units}</td>
                             <td style="padding: 8px; font-weight: bold;">${gradeStr}</td>
                         </tr>`;
@@ -265,14 +276,14 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
                 ${semesters.map(sem => `
                 <tbody>
                     <tr>
-                        <td colspan="4" style="padding-top: 24px; padding-bottom: 4px; font-weight: bold; font-size: 14px; color: #800000; border-bottom: 1px solid #ddd;">${sem.label}</td>
+                        <td colspan="4" style="padding-top: 24px; padding-bottom: 4px; font-weight: bold; font-size: 14px; color: #800000; border-bottom: 1px solid #ddd;">${escapeHTML(sem.label)}</td>
                     </tr>
                     ${sem.subjects.map(s => `
                         <tr style="border-bottom: 1px solid #f0f0f0; ${isNonAcademic(s.code) ? 'color: #999;' : ''}">
-                            <td style="padding: 6px 8px; font-weight: 600;">${s.code}</td>
-                            <td style="padding: 6px 8px;">${s.description}</td>
+                            <td style="padding: 6px 8px; font-weight: 600;">${escapeHTML(s.code)}</td>
+                            <td style="padding: 6px 8px;">${escapeHTML(s.description)}</td>
                             <td style="padding: 6px 8px;">${s.units !== null ? s.units : '—'}</td>
-                            <td style="padding: 6px 8px; font-weight: bold;">${s.gradeRaw || '—'}</td>
+                            <td style="padding: 6px 8px; font-weight: bold;">${escapeHTML(s.gradeRaw) || '—'}</td>
                         </tr>
                     `).join("")}
                 </tbody>

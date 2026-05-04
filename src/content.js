@@ -9,7 +9,8 @@ import extApi from "webextension-polyfill";
 import { 
   HONORS, MODE_KEY, CURR_KEY, PROJ_KEY, 
   isNonAcademic, parseGrade, honorFor, honorColor, 
-  computeModeA, computeModeB, computeModeC, exportToPDF 
+  computeModeA, computeModeB, computeModeC, exportToPDF,
+  escapeHTML
 } from "./core/utils.js";
 import GWAChart from "./gwa-chart.js";
 
@@ -211,7 +212,7 @@ function honorsTableHTML(gwa) {
     <tbody>${HONORS.map(h => {
       const m = gwa !== null && gwa >= h.min && gwa <= h.max;
       return `<tr class="${m ? "row-match" : ""}">
-        <td>${h.label}</td>
+        <td>${escapeHTML(h.label)}</td>
         <td>${h.min.toFixed(4)} – ${h.max.toFixed(4)}</td>
         <td>${m ? "✓ Your GWA" : (gwa !== null ? (gwa < h.min ? "Below" : "Above") : "–")}</td>
       </tr>`;
@@ -232,7 +233,7 @@ function statusBadgeHTML(gwa, disqualifiers, isOngoing) {
     cls = "status-none";
   } else {
     icon = "✓";
-    msg = isOngoing ? `Projected: ${honor} (some grades still pending)` : honor;
+    msg = isOngoing ? `Projected: ${escapeHTML(honor)} (some grades still pending)` : escapeHTML(honor);
     cls = "status-honor";
   }
   const statusDiv = document.createElement("div");
@@ -250,10 +251,10 @@ function statusBadgeHTML(gwa, disqualifiers, isOngoing) {
 
 function disqAndPendingHTML(disqualifiers, pending) {
   const dq = disqualifiers.length > 0
-    ? `<ul class="pup-disq-list">${disqualifiers.map(d => `<li>⚠️ ${d}</li>`).join("")}</ul>`
+    ? `<ul class="pup-disq-list">${disqualifiers.map(d => `<li>⚠️ ${escapeHTML(d)}</li>`).join("")}</ul>`
     : "<p class='muted'>None detected</p>";
   const pg = pending.length > 0
-    ? `<ul class="pup-subj-list">${pending.map(s => `<li>${s}</li>`).join("")}</ul>`
+    ? `<ul class="pup-subj-list">${pending.map(s => `<li>${escapeHTML(s)}</li>`).join("")}</ul>`
     : "<p class='muted'>None</p>";
   return `
     <details class="pup-section">
@@ -276,8 +277,8 @@ function renderModeA(semesters, disqData) {
 
   const excHTML = excluded.length > 0
     ? `<ul class="pup-subj-list">${excluded.map(s =>
-        `<li><span class="subj-code ${s.isNonAcademic ? "non-academic" : "no-grade"}">${s.code}</span>
-        ${s.description} <em>[${s.semLabel}]</em>
+        `<li><span class="subj-code ${s.isNonAcademic ? "non-academic" : "no-grade"}">${escapeHTML(s.code)}</span>
+        ${escapeHTML(s.description)} <em>[${escapeHTML(s.semLabel)}]</em>
         ${s.isNonAcademic ? "<span class='tag'>Non-Academic</span>" : "<span class='tag tag-warn'>No Grade</span>"}
         </li>`).join("")}</ul>`
     : "<p class='muted'>None</p>";
@@ -286,7 +287,7 @@ function renderModeA(semesters, disqData) {
     ? `<table class="pup-included-table">
         <thead><tr><th>Code</th><th>Description</th><th>Units</th><th>Grade</th><th>Contribution</th></tr></thead>
         <tbody>${included.map(s => `<tr>
-          <td>${s.code}</td><td>${s.description}</td><td>${s.units}</td>
+          <td>${escapeHTML(s.code)}</td><td>${escapeHTML(s.description)}</td><td>${s.units}</td>
           <td>${s.grade}</td><td>${(s.grade * s.units).toFixed(2)}</td>
         </tr>`).join("")}</tbody>
       </table>`
@@ -332,7 +333,7 @@ function renderModeB(semesters, disqData) {
         <thead><tr><th>Semester</th><th>Site GPA</th><th>Academic Units</th><th>Weighted Points</th></tr></thead>
         <tbody>
           ${breakdown.map(b => `<tr>
-            <td>${b.label}</td><td>${b.siteGpa.toFixed(2)}</td>
+            <td>${escapeHTML(b.label)}</td><td>${b.siteGpa.toFixed(2)}</td>
             <td>${b.units}</td><td>${(b.siteGpa * b.units).toFixed(4)}</td>
           </tr>`).join("")}
           <tr class="breakdown-total">
@@ -347,7 +348,7 @@ function renderModeB(semesters, disqData) {
   const skippedHTML = skipped.length > 0
     ? `<details class="pup-section">
         <summary>⏭️ Skipped Semesters (${skipped.length})</summary>
-        <ul class="pup-subj-list">${skipped.map(s => `<li>${s}</li>`).join("")}</ul>
+        <ul class="pup-subj-list">${skipped.map(s => `<li>${escapeHTML(s)}</li>`).join("")}</ul>
       </details>`
     : "";
 
@@ -404,7 +405,7 @@ function renderModeC(curriculum, userProjections) {
           else { msg = `≤ ${h.req.toFixed(4)}`; cls = "target-possible"; }
           
           return `<div class="pup-target-card ${cls}" style="border-top-color: ${h.color}">
-            <div class="pup-target-label">${h.label}</div>
+            <div class="pup-target-label">${escapeHTML(h.label)}</div>
             <div class="pup-target-val">${msg}</div>
           </div>`;
         }).join("")}
@@ -420,6 +421,7 @@ function renderModeC(curriculum, userProjections) {
   if (remainingUnits > 0) {
     const pGwaStr = projectedGwa !== null ? projectedGwa.toFixed(4) : "—";
     const pHonorVal = honorFor(projectedGwa);
+    const pHonorEscaped = escapeHTML(pHonorVal);
     const resultColor = projectedGwa !== null ? honorColor(pHonorVal) : "var(--pup-text-muted)";
     
     let subtext = "";
@@ -443,7 +445,7 @@ function renderModeC(curriculum, userProjections) {
         <div class="pup-simulator-result" style="color: ${resultColor}">
           <span class="pup-sim-label">Projected Final GWA</span>
           <span class="pup-sim-val">${pGwaStr}</span>
-          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${pHonorVal}</span>` : ""}
+          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${pHonorEscaped}</span>` : ""}
         </div>
         ${subtext}
       </div>
@@ -457,7 +459,7 @@ function renderModeC(curriculum, userProjections) {
       return `
       <div class="pup-pending-sem">
         <div class="pup-pending-sem-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pup-card-border); padding-bottom: 4px; margin-bottom: 6px;">
-          <span style="font-size: 12px; font-weight: 700; color: var(--pup-text-muted); text-transform: uppercase;">${semKey}</span>
+          <span style="font-size: 12px; font-weight: 700; color: var(--pup-text-muted); text-transform: uppercase;">${escapeHTML(semKey)}</span>
           <div style="font-size: 11px; font-weight: 600; text-transform: none; display: flex; align-items: center;" class="${labelCls}">
             Average Target: 
             <select class="pup-grade-select" data-code="${semKey}" style="margin-left: 6px; font-size: 11px; padding: 2px 4px; min-width: 50px;">
@@ -469,7 +471,7 @@ function renderModeC(curriculum, userProjections) {
           </div>
         </div>
         <ul class="pup-subj-list" style="margin-top: 6px; padding-left: 0;">
-          ${data.subjects.map(s => `<li><span class="subj-code">${s.code}</span> <span class="pup-subj-desc">${s.description}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
+          ${data.subjects.map(s => `<li><span class="subj-code">${escapeHTML(s.code)}</span> <span class="pup-subj-desc">${escapeHTML(s.description)}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
         </ul>
       </div>
     `}).join("")
