@@ -2,7 +2,8 @@ import extApi from "webextension-polyfill";
 import { 
   HONORS, MODE_KEY, CURR_KEY, PROJ_KEY, 
   honorFor, honorColor, 
-  computeModeA, computeModeB, computeModeC, exportToPDF 
+  computeModeA, computeModeB, computeModeC, exportToPDF,
+  escapeHTML
 } from "../src/core/utils.js";
 
 async function render() {
@@ -82,7 +83,7 @@ async function render() {
           card.className = "pl-target-card";
           card.style.borderLeft = `3px solid ${h.color}`;
           let msg = h.req < 1.0 ? "N/A" : (h.req > 3.0 ? "Guaranteed" : `≤ ${h.req.toFixed(4)}`);
-          card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div>`;
+          card.innerHTML = `<div class="pl-t-lab">${escapeHTML(h.label)}</div><div class="pl-t-val">${msg}</div>`;
           targetsGrid.appendChild(card);
        });
        
