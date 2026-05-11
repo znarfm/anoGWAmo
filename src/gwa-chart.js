@@ -37,16 +37,21 @@ export default class GWAChart {
     this.points = [];
     this.hoverIndex = -1;
     this.tooltip = this.createTooltip();
+    this.cachedRect = null;
     
     // Bind methods
     this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.handleScroll = this.handleScroll.bind(this);
     
     // Event listeners
     this.canvas.addEventListener('mousemove', this.handleMouseMove);
+    this.canvas.addEventListener('mouseenter', this.handleMouseEnter);
     this.canvas.addEventListener('mouseleave', this.handleMouseLeave);
     window.addEventListener('resize', this.handleResize);
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
   }
 
   createTooltip() {
@@ -58,11 +63,17 @@ export default class GWAChart {
 
   destroy() {
     this.canvas.removeEventListener('mousemove', this.handleMouseMove);
+    this.canvas.removeEventListener('mouseenter', this.handleMouseEnter);
     this.canvas.removeEventListener('mouseleave', this.handleMouseLeave);
     window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('scroll', this.handleScroll);
     if (this.tooltip && this.tooltip.parentNode) {
       this.tooltip.parentNode.removeChild(this.tooltip);
     }
+  }
+
+  updateCachedRect() {
+    this.cachedRect = this.canvas.getBoundingClientRect();
   }
 
   handleResize() {
@@ -71,10 +82,21 @@ export default class GWAChart {
     }
   }
 
+  handleScroll() {
+    this.updateCachedRect();
+  }
+
+  handleMouseEnter() {
+    this.updateCachedRect();
+  }
+
   handleMouseMove(e) {
     if (!this.data || this.data.length === 0) return;
     
-    const rect = this.canvas.getBoundingClientRect();
+    if (!this.cachedRect) {
+      this.updateCachedRect();
+    }
+    const rect = this.cachedRect;
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
@@ -112,8 +134,8 @@ export default class GWAChart {
             this.tooltip.classList.add('visible');
             
             const tooltipRect = this.tooltip.getBoundingClientRect();
-            let left = rect.left + point.x - tooltipRect.width / 2;
-            let top = rect.top + point.y - tooltipRect.height - 15;
+            let left = rect.left + point.x - (tooltipRect.width || 0) / 2;
+            let top = rect.top + point.y - (tooltipRect.height || 0) - 15;
             
             if (top < 0) top = rect.top + point.y + 15;
             
@@ -133,6 +155,7 @@ export default class GWAChart {
 
   renderChart(data) {
     this.data = data;
+    this.updateCachedRect();
     
     // High DPI scaling
     const rect = this.canvasDiv.getBoundingClientRect();
