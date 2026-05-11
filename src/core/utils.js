@@ -146,6 +146,29 @@ export function computeModeC(curriculum, userProjections = {}) {
   };
 }
 
+// ── Chart Data ────────────────────────────────────────────────────────────────────
+
+export function prepareChartData(currentMode, semesters) {
+    const chartData = [];
+    if (currentMode === "B") {
+        const { breakdown } = computeModeB(semesters);
+        breakdown.forEach(b => chartData.push({ semester: b.label, gwa: b.siteGpa }));
+    } else if (currentMode === "A") {
+        semesters.forEach(sem => {
+            let semPts = 0, semUnits = 0;
+            sem.subjects.forEach(subj => {
+                const nonAcad = subj.isNonAcademic ?? (subj.code ? isNonAcademic(subj.code) : false);
+                if (!nonAcad && subj.grade !== null && subj.units !== null) {
+                    semPts += subj.grade * subj.units;
+                    semUnits += subj.units;
+                }
+            });
+            if (semUnits > 0) chartData.push({ semester: sem.label, gwa: semPts / semUnits });
+        });
+    }
+    return chartData;
+}
+
 // ── Export to PDF ─────────────────────────────────────────────────────────────────
 
 export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, userProjections, onComplete = () => {} }) {
@@ -184,23 +207,7 @@ export function exportToPDF({ currentMode, studentInfo, semesters, curriculum, u
         document.body.appendChild(dummyContainer);
 
         const chart = new GWAChart(dummyContainer);
-        
-        const chartData = [];
-        if (currentMode === "B") {
-            const { breakdown } = computeModeB(semesters);
-            breakdown.forEach(b => chartData.push({ semester: b.label, gwa: b.siteGpa }));
-        } else if (currentMode === "A") {
-            semesters.forEach(sem => {
-                let semPts = 0, semUnits = 0;
-                sem.subjects.forEach(subj => {
-                    if (!isNonAcademic(subj.code) && subj.grade !== null && subj.units !== null) {
-                        semPts += subj.grade * subj.units;
-                        semUnits += subj.units;
-                    }
-                });
-                if (semUnits > 0) chartData.push({ semester: sem.label, gwa: semPts / semUnits });
-            });
-        }
+        const chartData = prepareChartData(currentMode, semesters);
         
         if (chartData.length > 0) {
             chart.renderChart(chartData);

@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { honorFor, isNonAcademic, parseGrade, honorColor } from "./utils.js";
+import { honorFor, isNonAcademic, parseGrade, honorColor, prepareChartData } from "./utils.js";
 
 describe("utils.js", () => {
   describe("isNonAcademic", () => {
@@ -69,6 +69,59 @@ describe("utils.js", () => {
     test("returns default color for unknown labels", () => {
       expect(honorColor("No Honor")).toBe("var(--pup-honor-none)");
       expect(honorColor(null)).toBe("var(--pup-honor-none)");
+    });
+  });
+
+  describe("prepareChartData", () => {
+    const semesters = [
+      {
+        label: "First Semester 2023-2024",
+        siteGpa: 1.25,
+        subjects: [
+          { code: "COMP 20083", grade: 1.0, units: 3, isNonAcademic: false },
+          { code: "MATH 20013", grade: 1.5, units: 3, isNonAcademic: false },
+          { code: "PATHFIT 1", grade: 1.0, units: 2, isNonAcademic: true }
+        ]
+      },
+      {
+        label: "Second Semester 2023-2024",
+        siteGpa: 1.5,
+        subjects: [
+          { code: "COMP 20093", grade: 1.5, units: 3, isNonAcademic: false },
+          { code: "ENGL 20013", grade: null, units: 3, isNonAcademic: false }
+        ]
+      }
+    ];
+
+    test("prepares data correctly for Mode B (Site GPA)", () => {
+      const data = prepareChartData("B", semesters);
+      expect(data).toEqual([
+        { semester: "First Semester 2023-2024", gwa: 1.25 },
+        { semester: "Second Semester 2023-2024", gwa: 1.5 }
+      ]);
+    });
+
+    test("prepares data correctly for Mode A (Manual)", () => {
+      const data = prepareChartData("A", semesters);
+      expect(data).toEqual([
+        { semester: "First Semester 2023-2024", gwa: 1.25 }, // (1.0*3 + 1.5*3) / 6 = 1.25
+        { semester: "Second Semester 2023-2024", gwa: 1.5 }  // (1.5*3) / 3 = 1.5
+      ]);
+    });
+
+    test("handles semesters with no academic units in Mode A", () => {
+      const emptySems = [{ label: "Empty", subjects: [{ code: "PATHFIT 1", grade: 1.0, units: 2, isNonAcademic: true }] }];
+      const data = prepareChartData("A", emptySems);
+      expect(data).toEqual([]);
+    });
+
+    test("uses isNonAcademic utility if isNonAcademic property is missing", () => {
+      const sems = [{
+        label: "Test",
+        subjects: [{ code: "PATHFIT 1", grade: 1.0, units: 2 }]
+      }];
+      const data = prepareChartData("A", sems);
+      expect(data).toEqual([]);
     });
   });
 });
