@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUP SIS - Student Grades</title>
+    <!-- Basic styles to mimic the SIS layout just enough for the content script to work -->
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; }
+        .wrapper { margin: 20px auto; max-width: 1200px; padding: 20px; }
+        .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card-header { border-bottom: 1px solid #f4f4f4; padding: 10px 20px; }
+        .card-title { font-size: 1.1rem; margin: 0; }
+        .text-danger { color: #dc3545; }
+        .text-bold { font-weight: bold; }
+        .card-body { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        th, td { padding: 0.75rem; border-top: 1px solid #dee2e6; text-align: left; }
+        thead th { border-bottom: 2px solid #dee2e6; }
+        .btn { display: inline-block; padding: 6px 12px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 4px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; }
+        .modal.show { display: block; }
+        .modal-dialog { margin: 1.75rem auto; max-width: 800px; background: #fff; border-radius: .3rem; }
+        .modal-header { display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #e9ecef; }
+        .modal-body { padding: 1rem; max-height: 70vh; overflow-y: auto; }
+        .close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        dt { font-weight: bold; }
+        dd { margin-left: 0; margin-bottom: .5rem; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <section class="content">
+            <div style="margin-bottom: 20px;">
+                <h2 style="color: #800000;">Mock PUP SIS</h2>
+                <p>This is a mock page designed to test anoGWAmo? browser extension edge cases.</p>
+                <a href="#" class="btn btn-primary" id="curriculumBtn">Curriculum Evaluation</a>
+            </div>
+
+            <!-- Year 1, Semester 1 -->
+            <div class="card card-theme">
+                <div class="card-header">
+                    <h3 class="card-title text-danger text-bold">First Year, First Semester, AY 2021-2022</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">GPA (excludes NSTP...)</dt>
+                        <dd class="col-sm-8">1.46</dd>
+                    </dl>
+                    <table class="table tbldsp">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Subject Code</th>
+                                <th>Subject Description</th>
+                                <th>Units</th>
+                                <th>Grade</th>
+                                <th>Completion</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td><td>COMP 20013</td><td>INTRODUCTION TO COMPUTING</td><td>3.0</td><td>1.25</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>2</td><td>COMP 20023</td><td>COMPUTER PROGRAMMING 1</td><td>3.0</td><td>1.50</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>3</td><td>GEED 10013</td><td>LIFE AND WORKS OF RIZAL</td><td>3.0</td><td>1.25</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>4</td><td>MATH 20013</td><td>CALCULUS 1</td><td>3.0</td><td>1.75</td><td></td><td>Passed</td>
+                            </tr>
+                            <!-- Non-academic subjects -->
+                            <tr>
+                                <td>5</td><td>PATHFIT 1</td><td>MOVEMENT COMPETENCY TRAINING</td><td>2.0</td><td>1.00</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>6</td><td>CWTS 1</td><td>CIVIC WELFARE TRAINING SERVICE 1</td><td>3.0</td><td>1.25</td><td></td><td>Passed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Year 1, Semester 2 (Test Incomplete) -->
+            <div class="card card-theme">
+                <div class="card-header">
+                    <h3 class="card-title text-danger text-bold">First Year, Second Semester, AY 2021-2022</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">GPA (excludes NSTP...)</dt>
+                        <dd class="col-sm-8">1.83</dd>
+                    </dl>
+                    <table class="table tbldsp">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Subject Code</th>
+                                <th>Subject Description</th>
+                                <th>Units</th>
+                                <th>Grade</th>
+                                <th>Completion</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td><td>COMP 20033</td><td>COMPUTER PROGRAMMING 2</td><td>3.0</td><td>2.00</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>2</td><td>MATH 20023</td><td>CALCULUS 2</td><td>3.0</td><td>2.25</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>3</td><td>GEED 10023</td><td>UNDERSTANDING THE SELF</td><td>3.0</td><td>Inc.</td><td>1.50</td><td>Passed</td>
+                            </tr>
+                            <!-- Non-academic subjects -->
+                            <tr>
+                                <td>4</td><td>PATHFIT 2</td><td>FITNESS EXERCISES</td><td>2.0</td><td>1.25</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>5</td><td>CWTS 2</td><td>CIVIC WELFARE TRAINING SERVICE 2</td><td>3.0</td><td>1.00</td><td></td><td>Passed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Year 2, Semester 1 (Test Withdrawn and Failing Grades) -->
+            <div class="card card-theme">
+                <div class="card-header">
+                    <h3 class="card-title text-danger text-bold">Second Year, First Semester, AY 2022-2023</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">GPA (excludes NSTP...)</dt>
+                        <dd class="col-sm-8">2.50</dd>
+                    </dl>
+                    <table class="table tbldsp">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Subject Code</th>
+                                <th>Subject Description</th>
+                                <th>Units</th>
+                                <th>Grade</th>
+                                <th>Completion</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td><td>COEN 30013</td><td>DATA STRUCTURES AND ALGORITHMS</td><td>3.0</td><td>2.50</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>2</td><td>COEN 30023</td><td>DISCRETE MATHEMATICS</td><td>3.0</td><td>5.00</td><td></td><td>Failed</td>
+                            </tr>
+                            <tr>
+                                <td>3</td><td>GEED 10033</td><td>READINGS IN PHILIPPINE HISTORY</td><td>3.0</td><td>W</td><td></td><td>Withdrawn</td>
+                            </tr>
+                            <tr>
+                                <td>4</td><td>PATHFIT 3</td><td>DANCE</td><td>2.0</td><td>1.50</td><td></td><td>Passed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Year 2, Semester 2 (Test retakes and lower grades) -->
+            <div class="card card-theme">
+                <div class="card-header">
+                    <h3 class="card-title text-danger text-bold">Second Year, Second Semester, AY 2022-2023</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">GPA (excludes NSTP...)</dt>
+                        <dd class="col-sm-8">1.83</dd>
+                    </dl>
+                    <table class="table tbldsp">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Subject Code</th>
+                                <th>Subject Description</th>
+                                <th>Units</th>
+                                <th>Grade</th>
+                                <th>Completion</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td><td>COEN 30033</td><td>OBJECT ORIENTED PROGRAMMING</td><td>3.0</td><td>1.75</td><td></td><td>Passed</td>
+                            </tr>
+                            <!-- Retake -->
+                            <tr>
+                                <td>2</td><td>COEN 30023</td><td>DISCRETE MATHEMATICS</td><td>3.0</td><td>2.25</td><td></td><td>Passed</td>
+                            </tr>
+                            <!-- Retake with low grade -->
+                            <tr>
+                                <td>3</td><td>GEED 10033</td><td>READINGS IN PHILIPPINE HISTORY</td><td>3.0</td><td>2.75</td><td></td><td>Passed</td>
+                            </tr>
+                            <tr>
+                                <td>4</td><td>PATHFIT 4</td><td>SPORTS</td><td>2.0</td><td>1.00</td><td></td><td>Passed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal for Curriculum Evaluation -->
+            <div class="modal fade" id="curriculumModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Curriculum Evaluation</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- First Year -->
+                            <div class="card card-theme">
+                                <div class="card-header">
+                                    <h3 class="card-title">First Year</h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table modaltbldsp">
+                                        <thead>
+                                            <tr><th>Course Code</th><th>Course Title</th><th>Units</th><th>Pre-requisite</th><th>Grade</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>COMP 20013</td><td>INTRODUCTION TO COMPUTING</td><td>3.0</td><td>None</td><td>1.25</td></tr>
+                                            <tr><td>COMP 20023</td><td>COMPUTER PROGRAMMING 1</td><td>3.0</td><td>None</td><td>1.50</td></tr>
+                                            <tr><td>GEED 10013</td><td>LIFE AND WORKS OF RIZAL</td><td>3.0</td><td>None</td><td>1.25</td></tr>
+                                            <tr><td>MATH 20013</td><td>CALCULUS 1</td><td>3.0</td><td>None</td><td>1.75</td></tr>
+                                            <tr><td>PATHFIT 1</td><td>MOVEMENT COMPETENCY TRAINING</td><td>2.0</td><td>None</td><td>1.00</td></tr>
+                                            <tr><td>CWTS 1</td><td>CIVIC WELFARE TRAINING SERVICE 1</td><td>3.0</td><td>None</td><td>1.25</td></tr>
+
+                                            <tr><td>COMP 20033</td><td>COMPUTER PROGRAMMING 2</td><td>3.0</td><td>COMP 20023</td><td>2.00</td></tr>
+                                            <tr><td>MATH 20023</td><td>CALCULUS 2</td><td>3.0</td><td>MATH 20013</td><td>2.25</td></tr>
+                                            <tr><td>GEED 10023</td><td>UNDERSTANDING THE SELF</td><td>3.0</td><td>None</td><td>1.50</td></tr>
+                                            <tr><td>PATHFIT 2</td><td>FITNESS EXERCISES</td><td>2.0</td><td>PATHFIT 1</td><td>1.25</td></tr>
+                                            <tr><td>CWTS 2</td><td>CIVIC WELFARE TRAINING SERVICE 2</td><td>3.0</td><td>CWTS 1</td><td>1.00</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Second Year -->
+                            <div class="card card-theme">
+                                <div class="card-header">
+                                    <h3 class="card-title">Second Year</h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table modaltbldsp">
+                                        <thead>
+                                            <tr><th>Course Code</th><th>Course Title</th><th>Units</th><th>Pre-requisite</th><th>Grade</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>COEN 30013</td><td>DATA STRUCTURES AND ALGORITHMS</td><td>3.0</td><td>COMP 20033</td><td>2.50</td></tr>
+                                            <tr><td>COEN 30023</td><td>DISCRETE MATHEMATICS</td><td>3.0</td><td>None</td><td>2.25</td></tr>
+                                            <tr><td>GEED 10033</td><td>READINGS IN PHILIPPINE HISTORY</td><td>3.0</td><td>None</td><td>2.75</td></tr>
+                                            <tr><td>PATHFIT 3</td><td>DANCE</td><td>2.0</td><td>PATHFIT 2</td><td>1.50</td></tr>
+
+                                            <tr><td>COEN 30033</td><td>OBJECT ORIENTED PROGRAMMING</td><td>3.0</td><td>COMP 20033</td><td>1.75</td></tr>
+                                            <tr><td>PATHFIT 4</td><td>SPORTS</td><td>2.0</td><td>PATHFIT 3</td><td>1.00</td></tr>
+                                            <!-- Future Subject -->
+                                            <tr><td>COEN 30043</td><td>SOFTWARE ENGINEERING</td><td>3.0</td><td>COEN 30033</td><td></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Simple script to handle modal opening and closing
+        document.getElementById('curriculumBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const modal = document.getElementById('curriculumModal');
+            modal.classList.add('show');
+
+            // create backdrop
+            let backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+        });
+
+        document.querySelector('.close').addEventListener('click', function(e) {
+            e.preventDefault();
+            const modal = document.getElementById('curriculumModal');
+            modal.classList.remove('show');
+
+            let backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+        });
+    </script>
+</body>
+</html>

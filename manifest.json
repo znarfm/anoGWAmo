@@ -9,7 +9,9 @@
   "host_permissions": [
     "https://sis1.pup.edu.ph/student/grades*",
     "https://sis2.pup.edu.ph/student/grades*",
-    "https://sis8.pup.edu.ph/student/grades*"
+    "https://sis8.pup.edu.ph/student/grades*",
+    "http://localhost:*/*",
+    "http://127.0.0.1:*/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
@@ -25,10 +27,17 @@
       "matches": [
         "https://sis1.pup.edu.ph/student/grades*",
         "https://sis2.pup.edu.ph/student/grades*",
-        "https://sis8.pup.edu.ph/student/grades*"
+        "https://sis8.pup.edu.ph/student/grades*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*"
       ],
-      "js": ["src/content.js"],
-      "css": ["src/gwa-chart.css", "src/styles.css"],
+      "js": [
+        "src/content.js"
+      ],
+      "css": [
+        "src/gwa-chart.css",
+        "src/styles.css"
+      ],
       "run_at": "document_idle"
     }
   ],
