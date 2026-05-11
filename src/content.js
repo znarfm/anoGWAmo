@@ -9,7 +9,7 @@ import extApi from "webextension-polyfill";
 import { 
   HONORS, MODE_KEY, CURR_KEY, PROJ_KEY, 
   isNonAcademic, parseGrade, honorFor, honorColor, 
-  computeModeA, computeModeB, computeModeC, exportToPDF 
+  computeModeA, computeModeB, computeModeC, prepareChartData, exportToPDF
 } from "./core/utils.js";
 import GWAChart from "./gwa-chart.js";
 
@@ -588,27 +588,7 @@ async function createPanel(semesters, studentInfo) {
       return;
     }
 
-    const chartData = [];
-    
-    if (currentMode === "B") {
-      const { breakdown } = computeModeB(semesters);
-      breakdown.forEach(b => {
-        chartData.push({ semester: b.label, gwa: b.siteGpa });
-      });
-    } else {
-      semesters.forEach(sem => {
-        let semPts = 0, semUnits = 0;
-        sem.subjects.forEach(subj => {
-          if (!subj.isNonAcademic && subj.grade !== null && subj.units !== null) {
-            semPts += subj.grade * subj.units;
-            semUnits += subj.units;
-          }
-        });
-        if (semUnits > 0) {
-          chartData.push({ semester: sem.label, gwa: semPts / semUnits });
-        }
-      });
-    }
+    const chartData = prepareChartData(currentMode, semesters);
 
     if (chartData.length < 2) {
       container.style.display = 'none';
