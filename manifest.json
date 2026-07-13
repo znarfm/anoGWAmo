@@ -1,40 +1,38 @@
 {
-  "manifest_version": 3,
-  "name": "anoGWAmo?",
-  "version": "2.3.4",
-  "description": "Computes cumulative GWA from PUP SIS grades, excludes non-academic subjects, and checks Latin Honors eligibility.",
-  "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
-    "https://sis1.pup.edu.ph/student/grades*",
-    "https://sis2.pup.edu.ph/student/grades*",
-    "https://sis8.pup.edu.ph/student/grades*"
-  ],
-  "action": {
-    "default_popup": "popup/popup.html",
-    "default_title": "anoGWAmo?",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://sis1.pup.edu.ph/student/grades*",
-        "https://sis2.pup.edu.ph/student/grades*",
-        "https://sis8.pup.edu.ph/student/grades*"
-      ],
-      "js": ["src/content.js"],
-      "css": ["src/gwa-chart.css", "src/styles.css"],
-      "run_at": "document_idle"
-    }
-  ],
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  }
+	"manifest_version": 3,
+	"name": "anoGWAmo?",
+	"version": "2.4.0",
+	"description": "Computes cumulative GWA from PUP SIS grades, excludes non-academic subjects, and checks Latin Honors eligibility.",
+	"permissions": ["storage"],
+	"host_permissions": [
+		"https://sis1.pup.edu.ph/student/grades*",
+		"https://sis2.pup.edu.ph/student/grades*",
+		"https://sis8.pup.edu.ph/student/grades*"
+	],
+	"action": {
+		"default_popup": "popup/popup.html",
+		"default_title": "anoGWAmo?",
+		"default_icon": {
+			"16": "icons/icon16.png",
+			"48": "icons/icon48.png",
+			"128": "icons/icon128.png"
+		}
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"https://sis1.pup.edu.ph/student/grades*",
+				"https://sis2.pup.edu.ph/student/grades*",
+				"https://sis8.pup.edu.ph/student/grades*"
+			],
+			"js": ["src/content.js"],
+			"css": ["src/gwa-chart.css", "src/styles.css"],
+			"run_at": "document_idle"
+		}
+	],
+	"icons": {
+		"16": "icons/icon16.png",
+		"48": "icons/icon48.png",
+		"128": "icons/icon128.png"
+	}
 }
