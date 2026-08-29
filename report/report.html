@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>anoGWAmo? Academic Report</title>
+	<link rel="stylesheet" href="../css/fonts.css">
+	<style id="report-base-styles">
+		* {
+			box-sizing: border-box;
+		}
+		body {
+			margin: 0;
+			padding: 0;
+			background: #fbfbf9;
+			font-family: 'Outfit', -apple-system, sans-serif;
+			color: #2A2424;
+		}
+		.action-bar {
+			position: sticky;
+			top: 0;
+			z-index: 100;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: #4a0404;
+			color: #fbfbf9;
+			padding: 12px 24px;
+			box-shadow: 0 4px 16px rgba(74, 4, 4, 0.15);
+		}
+		.action-bar-title {
+			font-family: 'Playfair Display', serif;
+			font-weight: 700;
+			font-size: 17px;
+			letter-spacing: 0.5px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.btn-group {
+			display: flex;
+			gap: 10px;
+		}
+		.pup-action-btn {
+			background: rgba(255, 255, 255, 0.12);
+			border: 1px solid rgba(255, 255, 255, 0.25);
+			color: #fbfbf9;
+			font-size: 13px;
+			font-weight: 600;
+			font-family: inherit;
+			padding: 6px 14px;
+			border-radius: 20px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		.pup-action-btn:hover {
+			background: #fbfbf9;
+			color: #4a0404;
+			border-color: #fbfbf9;
+		}
+		.pup-action-btn:active {
+			transform: scale(0.97);
+		}
+		#report-container {
+			max-width: 800px;
+			margin: 30px auto 60px auto;
+			background: #ffffff;
+			padding: 40px;
+			border-radius: 12px;
+			border: 1px solid rgba(74, 4, 4, 0.08);
+			box-shadow: 0 16px 40px rgba(74, 4, 4, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
+			min-height: 400px;
+		}
+		@media print {
+			.no-print {
+				display: none;
+			}
+			body {
+				padding: 0;
+				background: #fff;
+			}
+			#report-container {
+				max-width: 100%;
+				padding: 0;
+				margin: 0;
+				border: none;
+				box-shadow: none;
+				border-radius: 0;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="action-bar no-print">
+		<div class="action-bar-title">🎓 anoGWAmo?</div>
+		<div class="btn-group">
+			<button id="btn-print" type="button" class="pup-action-btn">📥 Print / Save as PDF</button>
+			<button id="btn-close" type="button" class="pup-action-btn">Close</button>
+		</div>
+	</div>
+	<div id="report-container">
+		<p style="text-align: center; color: #888; padding: 40px;">Generating report...</p>
+	</div>
+	<script src="report.js"></script>
+</body>
+</html>

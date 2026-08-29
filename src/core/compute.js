@@ -141,9 +141,9 @@ export function prepareChartData(currentMode, semesters) {
 	const chartData = [];
 	if (currentMode === "B") {
 		const { breakdown } = computeModeB(semesters);
-		breakdown.forEach((b) =>
-			chartData.push({ semester: b.label, gwa: b.siteGpa }),
-		);
+		breakdown.forEach((b) => {
+			chartData.push({ semester: b.label, gwa: b.siteGpa });
+		});
 	} else if (currentMode === "A") {
 		semesters.forEach((sem) => {
 			let semPts = 0,

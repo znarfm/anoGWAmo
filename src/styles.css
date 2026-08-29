@@ -166,7 +166,6 @@ a {
 .pup-export-btn,
 .pup-gwa-toggle {
 	background: none;
-	border: none;
 	color: var(--pup-header-text);
 	font-size: 14px;
 	cursor: pointer;
