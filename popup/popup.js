@@ -45,7 +45,6 @@ async function render() {
 		const tpl = document
 			.getElementById("tpl-dashboard")
 			.content.cloneNode(true);
-		const mainContainer = tpl.querySelector(".dashboard");
 
 		let gwa, totalUnits, totalAcademicUnits, reqAverages;
 		if (mode === "C") {
@@ -65,8 +64,7 @@ async function render() {
 
 		const honor = honorFor(gwa);
 		const hasDisqualifiers =
-			data?.disqData?.disqualifiers &&
-			data.disqData.disqualifiers.length > 0;
+			data?.disqData?.disqualifiers && data.disqData.disqualifiers.length > 0;
 		const isOngoing =
 			mode !== "C" &&
 			data &&
@@ -186,7 +184,7 @@ async function render() {
 					userProjections: projections,
 					chartImageUrl,
 					onComplete: () => {
-						exportBtn.textContent = "Export PDF";
+						exportBtn.textContent = "📥 Export PDF";
 						exportBtn.style.pointerEvents = "all";
 					},
 				});

@@ -11,10 +11,12 @@ async function run() {
 	await mkdir("./dist/icons", { recursive: true });
 	await mkdir("./dist/files", { recursive: true });
 	await mkdir("./dist/css", { recursive: true });
+	await mkdir("./dist/report", { recursive: true });
 
 	console.log("📦 Copying static assets...");
 	await $`cp -r icons/* dist/icons/`;
 	await $`cp popup/popup.html dist/popup/`;
+	await $`cp report/report.html dist/report/`;
 	await $`cp src/gwa-chart.css dist/src/`.catch(() =>
 		console.log("gwa-chart.css not found, skipping."),
 	);
@@ -39,9 +41,9 @@ async function run() {
 		playfairCss.replaceAll("./files/", "../files/");
 	await writeFile("dist/css/fonts.css", cssContext);
 
-	console.log("🔨 Bundling JavaScript (content & popup)...");
+	console.log("🔨 Bundling JavaScript (content, popup & report)...");
 	await Bun.build({
-		entrypoints: ["src/content.js", "popup/popup.js"],
+		entrypoints: ["src/content.js", "popup/popup.js", "report/report.js"],
 		outdir: "dist",
 		target: "browser",
 		minify: true,
@@ -69,6 +71,11 @@ async function run() {
 
 	manifest.host_permissions = SIS_HOSTS;
 	manifest.content_scripts[0].matches = SIS_HOSTS;
+	if (manifest.web_accessible_resources?.[0]) {
+		manifest.web_accessible_resources[0].matches = SIS_HOSTS.map((h) =>
+			h.replace(/\/student\/grades.*$/, "/*"),
+		);
+	}
 
 	// Chrome Manifest
 	await writeFile("dist/manifest.json", JSON.stringify(manifest, null, 2));

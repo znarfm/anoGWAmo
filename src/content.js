@@ -8,7 +8,7 @@ import {
 	scrapeStudentInfo,
 	triggerCurriculumSync,
 } from "./core/scraper.js";
-import { isPageDark, syncPanelTheme } from "./core/theme.js";
+import { syncPanelTheme } from "./core/theme.js";
 import GWAChart from "./gwa-chart.js";
 
 async function createPanel(semesters, studentInfo) {
@@ -118,7 +118,7 @@ async function createPanel(semesters, studentInfo) {
 		const newBody = panel.querySelector(".pup-gwa-body");
 		if (newBody && scrollTop) newBody.scrollTop = scrollTop;
 
-		panel.querySelectorAll(".pup-sync-btn").forEach((btn) =>
+		panel.querySelectorAll(".pup-sync-btn").forEach((btn) => {
 			btn.addEventListener("click", async (e) => {
 				e.preventDefault();
 				const origText = btn.textContent;
@@ -130,8 +130,8 @@ async function createPanel(semesters, studentInfo) {
 				});
 				btn.textContent = origText;
 				btn.style.pointerEvents = "all";
-			}),
-		);
+			});
+		});
 
 		panel.querySelectorAll(".pup-grade-select").forEach((sel) => {
 			sel.addEventListener("change", (e) => {
