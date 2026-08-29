@@ -198,4 +198,13 @@ async function render() {
 	}
 }
 
+extApi.storage.onChanged.addListener((changes, areaName) => {
+	if (areaName === "local") {
+		const relevantKeys = ["anoGWAmo_data", CURR_KEY, PROJ_KEY, MODE_KEY];
+		if (relevantKeys.some((k) => k in changes)) {
+			render();
+		}
+	}
+});
+
 document.addEventListener("DOMContentLoaded", render);

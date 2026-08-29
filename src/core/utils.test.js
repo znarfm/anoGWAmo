@@ -1,8 +1,29 @@
 import { describe, expect, test } from "bun:test";
 import { prepareChartData } from "./compute.js";
-import { honorColor, honorFor, isNonAcademic, parseGrade } from "./utils.js";
+import {
+	escapeHTML,
+	honorColor,
+	honorFor,
+	isNonAcademic,
+	parseGrade,
+} from "./utils.js";
 
 describe("utils.js", () => {
+	describe("escapeHTML", () => {
+		test("escapes special HTML characters", () => {
+			expect(escapeHTML("<script>alert('xss')</script>")).toBe(
+				"&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+			);
+			expect(escapeHTML('Arts & Sciences "Dean\'s List"')).toBe(
+				"Arts &amp; Sciences &quot;Dean&#39;s List&quot;",
+			);
+		});
+
+		test("handles null or undefined safely", () => {
+			expect(escapeHTML(null)).toBe("");
+			expect(escapeHTML(undefined)).toBe("");
+		});
+	});
 	describe("isNonAcademic", () => {
 		test("identifies non-academic courses", () => {
 			expect(isNonAcademic("PATHFIT 1")).toBe(true);

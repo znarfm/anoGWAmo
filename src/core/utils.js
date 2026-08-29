@@ -28,3 +28,13 @@ export function defaultUnitsFor(code, units) {
 	if (!isNonAcademic(code) && (units === null || units === 0)) return 3.0;
 	return units;
 }
+
+export function escapeHTML(str) {
+	if (str === null || str === undefined) return "";
+	return String(str)
+		.replaceAll("&", "&amp;")
+		.replaceAll("<", "&lt;")
+		.replaceAll(">", "&gt;")
+		.replaceAll('"', "&quot;")
+		.replaceAll("'", "&#39;");
+}

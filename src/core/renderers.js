@@ -1,6 +1,6 @@
 import { computeModeA, computeModeB, computeModeC } from "./compute.js";
 import { HONORS } from "./constants.js";
-import { honorColor, honorFor } from "./utils.js";
+import { escapeHTML, honorColor, honorFor } from "./utils.js";
 
 export function honorsTableHTML(gwa) {
 	return `<table class="pup-honors-table-inner">
@@ -8,7 +8,7 @@ export function honorsTableHTML(gwa) {
     <tbody>${HONORS.map((h) => {
 			const m = gwa !== null && gwa >= h.min && gwa <= h.max;
 			return `<tr class="${m ? "row-match" : ""}">
-        <td>${h.label}</td>
+        <td>${escapeHTML(h.label)}</td>
         <td>${h.min.toFixed(4)} - ${h.max.toFixed(4)}</td>
         <td>${m ? "✓ Your GWA" : gwa !== null ? (gwa < h.min ? "Below" : "Above") : "-"}</td>
       </tr>`;
@@ -53,11 +53,11 @@ export function statusBadgeHTML(gwa, disqualifiers, isOngoing) {
 export function disqAndPendingHTML(disqualifiers, pending) {
 	const dq =
 		disqualifiers.length > 0
-			? `<ul class="pup-disq-list">${disqualifiers.map((d) => `<li>⚠️ ${d}</li>`).join("")}</ul>`
+			? `<ul class="pup-disq-list">${disqualifiers.map((d) => `<li>⚠️ ${escapeHTML(d)}</li>`).join("")}</ul>`
 			: "<p class='muted'>None detected</p>";
 	const pg =
 		pending.length > 0
-			? `<ul class="pup-subj-list">${pending.map((s) => `<li>${s}</li>`).join("")}</ul>`
+			? `<ul class="pup-subj-list">${pending.map((s) => `<li>${escapeHTML(s)}</li>`).join("")}</ul>`
 			: "<p class='muted'>None</p>";
 	return `
     <details class="pup-section">
@@ -81,8 +81,8 @@ export function renderModeA(semesters, disqData) {
 			? `<ul class="pup-subj-list">${excluded
 					.map(
 						(s) =>
-							`<li><span class="subj-code ${s.isNonAcademic ? "non-academic" : "no-grade"}">${s.code}</span>
-        ${s.description} <em>[${s.semLabel}]</em>
+							`<li><span class="subj-code ${s.isNonAcademic ? "non-academic" : "no-grade"}">${escapeHTML(s.code)}</span>
+        ${escapeHTML(s.description)} <em>[${escapeHTML(s.semLabel)}]</em>
         ${s.isNonAcademic ? "<span class='tag'>Non-Academic</span>" : "<span class='tag tag-warn'>No Grade</span>"}
         </li>`,
 					)
@@ -96,7 +96,7 @@ export function renderModeA(semesters, disqData) {
         <tbody>${included
 					.map(
 						(s) => `<tr>
-          <td>${s.code}</td><td>${s.description}</td><td>${s.units}</td>
+          <td>${escapeHTML(s.code)}</td><td>${escapeHTML(s.description)}</td><td>${s.units}</td>
           <td>${s.grade}</td><td>${(s.grade * s.units).toFixed(2)}</td>
         </tr>`,
 					)
@@ -145,7 +145,7 @@ export function renderModeB(semesters, disqData) {
           ${breakdown
 						.map(
 							(b) => `<tr>
-            <td>${b.label}</td><td>${b.siteGpa.toFixed(2)}</td>
+            <td>${escapeHTML(b.label)}</td><td>${b.siteGpa.toFixed(2)}</td>
             <td>${b.units}</td><td>${(b.siteGpa * b.units).toFixed(4)}</td>
           </tr>`,
 						)
@@ -163,7 +163,7 @@ export function renderModeB(semesters, disqData) {
 		skipped.length > 0
 			? `<details class="pup-section">
         <summary>⏭️ Skipped Semesters (${skipped.length})</summary>
-        <ul class="pup-subj-list">${skipped.map((s) => `<li>${s}</li>`).join("")}</ul>
+        <ul class="pup-subj-list">${skipped.map((s) => `<li>${escapeHTML(s)}</li>`).join("")}</ul>
       </details>`
 			: "";
 
@@ -237,7 +237,7 @@ export function renderModeC(curriculum, userProjections) {
 						}
 
 						return `<div class="pup-target-card ${cls}" style="border-top-color: ${h.color}">
-            <div class="pup-target-label">${h.label}</div>
+            <div class="pup-target-label">${escapeHTML(h.label)}</div>
             <div class="pup-target-val">${msg}</div>
           </div>`;
 					})
@@ -281,7 +281,7 @@ export function renderModeC(curriculum, userProjections) {
         <div class="pup-simulator-result" style="color: ${resultColor}">
           <span class="pup-sim-label">Projected Final GWA</span>
           <span class="pup-sim-val">${pGwaStr}</span>
-          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${pHonorVal}</span>` : ""}
+          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${escapeHTML(pHonorVal)}</span>` : ""}
         </div>
         ${subtext}
       </div>
@@ -294,13 +294,14 @@ export function renderModeC(curriculum, userProjections) {
 					.map(([semKey, data]) => {
 						const proj = userProjections[semKey] ?? "";
 						const labelCls = proj === "" && globalProj !== "" ? "muted-sm" : "";
+						const escapedSemKey = escapeHTML(semKey);
 						return `
       <div class="pup-pending-sem">
         <div class="pup-pending-sem-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pup-card-border); padding-bottom: 4px; margin-bottom: 6px;">
-          <span style="font-size: 12px; font-weight: 700; color: var(--pup-text-muted); text-transform: uppercase;">${semKey}</span>
+          <span style="font-size: 12px; font-weight: 700; color: var(--pup-text-muted); text-transform: uppercase;">${escapedSemKey}</span>
           <div style="font-size: 11px; font-weight: 600; text-transform: none; display: flex; align-items: center;" class="${labelCls}">
             Average Target:
-            <select class="pup-grade-select" data-code="${semKey}" style="margin-left: 6px; font-size: 11px; padding: 2px 4px; min-width: 50px;">
+            <select class="pup-grade-select" data-code="${escapedSemKey}" style="margin-left: 6px; font-size: 11px; padding: 2px 4px; min-width: 50px;">
               <option value="">${globalProj ? `(Global ${parseFloat(globalProj).toFixed(2)})` : "--"}</option>
               ${[1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
 								.map(
@@ -312,7 +313,7 @@ export function renderModeC(curriculum, userProjections) {
           </div>
         </div>
         <ul class="pup-subj-list" style="margin-top: 6px; padding-left: 0;">
-          ${data.subjects.map((s) => `<li><span class="subj-code">${s.code}</span> <span class="pup-subj-desc">${s.description}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
+          ${data.subjects.map((s) => `<li><span class="subj-code">${escapeHTML(s.code)}</span> <span class="pup-subj-desc">${escapeHTML(s.description)}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
         </ul>
       </div>
     `;
