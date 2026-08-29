@@ -7,11 +7,11 @@
 		"build": "bun run build.ts",
 		"format": "biome check --write",
 		"lint": "biome check --write",
-		"check": "biome check --write"
+		"check": "biome check --write",
+		"test": "bun test"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3",
-		"@types/adm-zip": "^0.5.8",
 		"@types/bun": "latest"
 	},
 	"peerDependencies": {
@@ -20,7 +20,7 @@
 	"dependencies": {
 		"@fontsource/outfit": "^5.3.0",
 		"@fontsource/playfair-display": "^5.3.0",
-		"adm-zip": "^0.5.18",
+		"fflate": "^0.8.3",
 		"webextension-polyfill": "^0.12.0"
 	}
 }

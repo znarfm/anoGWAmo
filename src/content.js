@@ -184,14 +184,28 @@ async function createPanel(semesters, studentInfo) {
 
 	render();
 
-	const observer = new MutationObserver(() => syncPanelTheme(panel));
+	let themeTimeout = null;
+	const debouncedSyncTheme = () => {
+		if (themeTimeout) clearTimeout(themeTimeout);
+		themeTimeout = setTimeout(() => syncPanelTheme(panel), 100);
+	};
+
+	const observer = new MutationObserver(debouncedSyncTheme);
 	observer.observe(document.documentElement, {
 		attributes: true,
-		childList: true,
-		subtree: false,
+		attributeFilter: [
+			"class",
+			"data-theme",
+			"style",
+			"data-darkreader-scheme",
+			"data-darkreader-mode",
+		],
 	});
 	if (document.body) {
-		observer.observe(document.body, { attributes: true, style: true });
+		observer.observe(document.body, {
+			attributes: true,
+			attributeFilter: ["class", "data-theme", "style"],
+		});
 	}
 
 	return panel;
