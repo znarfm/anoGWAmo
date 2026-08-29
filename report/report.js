@@ -10,12 +10,23 @@ async function init() {
 	btnClose?.addEventListener("click", () => window.close());
 
 	try {
-		const res = await extApi.storage.local.get("anoGWAmo_reportData");
-		const data = res.anoGWAmo_reportData;
+		const params = new URLSearchParams(window.location.search);
+		const reportId = params.get("id");
+		const storageKey = reportId
+			? `anoGWAmo_report_${reportId}`
+			: "anoGWAmo_reportData";
+
+		const res = await extApi.storage.local.get(storageKey);
+		const data = res[storageKey];
+
+		if (reportId) {
+			await extApi.storage.local.remove(storageKey);
+		}
+
 		if (!data) {
 			if (container)
 				container.innerHTML =
-					'<p style="text-align: center; color: #888;">No report data found. Please open the extension popup and click "Export to PDF" again.</p>';
+					'<p style="text-align: center; color: #888;">No report data found. Please open the extension and click "Export to PDF" again.</p>';
 			return;
 		}
 

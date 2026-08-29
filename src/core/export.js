@@ -292,8 +292,14 @@ export async function exportToPDF({
 	onComplete = () => {},
 }) {
 	try {
+		const reportId =
+			typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+				? crypto.randomUUID()
+				: `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
+		const storageKey = `anoGWAmo_report_${reportId}`;
+
 		await extApi.storage.local.set({
-			anoGWAmo_reportData: {
+			[storageKey]: {
 				currentMode,
 				studentInfo,
 				semesters,
@@ -302,7 +308,10 @@ export async function exportToPDF({
 				chartImageUrl,
 			},
 		});
-		const reportUrl = extApi.runtime.getURL("report/report.html");
+
+		const reportUrl = extApi.runtime.getURL(
+			`report/report.html?id=${encodeURIComponent(reportId)}`,
+		);
 		if (extApi.tabs?.create) {
 			await extApi.tabs.create({ url: reportUrl });
 		} else {
