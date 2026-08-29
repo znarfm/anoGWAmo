@@ -193,7 +193,13 @@ async function createPanel(semesters, studentInfo) {
 	const observer = new MutationObserver(debouncedSyncTheme);
 	observer.observe(document.documentElement, {
 		attributes: true,
-		attributeFilter: ["class", "data-theme", "style"],
+		attributeFilter: [
+			"class",
+			"data-theme",
+			"style",
+			"data-darkreader-scheme",
+			"data-darkreader-mode",
+		],
 	});
 	if (document.body) {
 		observer.observe(document.body, {

@@ -4,19 +4,15 @@ import {
 	computeModeB,
 	computeModeC,
 } from "../src/core/compute.js";
-import {
-	CURR_KEY,
-	GRADE_OPTIONS,
-	MODE_KEY,
-	PROJ_KEY,
-} from "../src/core/constants.js";
+import { CURR_KEY, MODE_KEY, PROJ_KEY } from "../src/core/constants.js";
 import { exportToPDF, renderChartToImage } from "../src/core/export.js";
 import { honorColor, honorFor } from "../src/core/utils.js";
 import GWAChart from "../src/gwa-chart.js";
 
+let renderSeq = 0;
+
 async function render() {
-	const app = document.getElementById("app");
-	app.innerHTML = "";
+	const currentSeq = ++renderSeq;
 
 	try {
 		const res = await extApi.storage.local.get([
@@ -25,6 +21,11 @@ async function render() {
 			PROJ_KEY,
 			MODE_KEY,
 		]);
+		if (currentSeq !== renderSeq) return;
+
+		const app = document.getElementById("app");
+		if (!app) return;
+
 		const data = res.anoGWAmo_data;
 		const curriculum = res[CURR_KEY] || [];
 		const projections = res[PROJ_KEY] || {};
@@ -38,7 +39,8 @@ async function render() {
 			tpl.querySelector("#btn-login").addEventListener("click", () => {
 				extApi.tabs.create({ url: "https://sisstudents.pup.edu.ph" });
 			});
-			app.appendChild(tpl);
+			if (currentSeq !== renderSeq) return;
+			app.replaceChildren(tpl);
 			return;
 		}
 
@@ -75,9 +77,8 @@ async function render() {
 		const modeBtns = tpl.querySelectorAll(".mode-btn");
 		modeBtns.forEach((btn) => {
 			btn.classList.toggle("active", btn.dataset.mode === mode);
-			btn.addEventListener("click", async () => {
-				await extApi.storage.local.set({ [MODE_KEY]: btn.dataset.mode });
-				render();
+			btn.addEventListener("click", () => {
+				extApi.storage.local.set({ [MODE_KEY]: btn.dataset.mode });
 			});
 		});
 
@@ -92,15 +93,14 @@ async function render() {
 				`${totalUnits} / ${totalAcademicUnits} acad units`;
 
 			const globalSel = plTpl.querySelector("#pl-global-select");
-			const baseline = projections["GLOBAL"] || "";
+			const baseline = projections.GLOBAL || "";
 			if (globalSel) {
 				globalSel.value = baseline;
-				globalSel.addEventListener("change", async (e) => {
+				globalSel.addEventListener("change", (e) => {
 					const val = e.target.value;
-					if (val === "") delete projections["GLOBAL"];
-					else projections["GLOBAL"] = val;
-					await extApi.storage.local.set({ [PROJ_KEY]: projections });
-					render();
+					if (val === "") delete projections.GLOBAL;
+					else projections.GLOBAL = val;
+					extApi.storage.local.set({ [PROJ_KEY]: projections });
 				});
 			}
 
@@ -191,10 +191,16 @@ async function render() {
 			});
 		}
 
-		app.appendChild(tpl);
+		if (currentSeq !== renderSeq) return;
+		app.replaceChildren(tpl);
 	} catch (error) {
 		console.error(error);
-		app.innerHTML = `<div class="empty-state"><p>Error loading data.</p></div>`;
+		if (currentSeq === renderSeq) {
+			const app = document.getElementById("app");
+			if (app) {
+				app.innerHTML = `<div class="empty-state"><p>Error loading data.</p></div>`;
+			}
+		}
 	}
 }
 
