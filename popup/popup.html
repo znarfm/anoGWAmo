@@ -17,7 +17,7 @@
       <img src="../icons/icon128.png" alt="anoGWAmo logo" width="64" height="64" class="logo">
       <h2>Welcome to anoGWAmo?</h2>
       <p>We don't have your grades recorded yet.</p>
-      <button id="btn-login" class="btn-primary">Calculate my GWA</button>
+      <button id="btn-login" type="button" class="btn-primary">Calculate my GWA</button>
       <p class="muted-note">This will open PUP SIS.</p>
     </div>
   </template>
@@ -30,9 +30,9 @@
           <a href="https://github.com/znarfm/anoGWAmo" target="_blank"><span class="title">anoGWAmo?</span></a>
         </div>
         <div class="mode-switcher" id="ds-mode-switcher">
-          <button class="mode-btn" data-mode="C">Planner</button>
-          <button class="mode-btn" data-mode="A">Manual</button>
-          <button class="mode-btn" data-mode="B">Site GPA</button>
+          <button type="button" class="mode-btn" data-mode="C">Planner</button>
+          <button type="button" class="mode-btn" data-mode="A">Manual</button>
+          <button type="button" class="mode-btn" data-mode="B">Site GPA</button>
         </div>
       </div>
       <div class="main-card">
@@ -50,10 +50,10 @@
       </div>
 
       <div class="actions" style="display: flex; gap: 8px;">
-        <button id="btn-export" class="btn-secondary" style="flex: 1; padding: 12px 10px; font-size: 11px;">Export PDF</button>
+        <button id="btn-export" type="button" class="btn-secondary" style="flex: 1; padding: 12px 10px; font-size: 11px;">📥 Export PDF</button>
         <div class="update-btn-wrapper" style="position:relative; flex: 1;">
            <div class="update-tooltip">Redirects to SIS. Visit the Grades page after login to sync.</div>
-           <button id="btn-update" class="btn-secondary" style="width: 100%; padding: 12px 10px; font-size: 11px;">Update Grades</button>
+           <button id="btn-update" type="button" class="btn-secondary" style="width: 100%; padding: 12px 10px; font-size: 11px;">Update Grades</button>
         </div>
       </div>
     </div>

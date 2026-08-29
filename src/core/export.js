@@ -1,10 +1,11 @@
+import extApi from "webextension-polyfill";
 import {
 	computeModeA,
 	computeModeB,
 	computeModeC,
 	prepareChartData,
 } from "./compute.js";
-import { isNonAcademic, parseGrade } from "./utils.js";
+import { isNonAcademic } from "./utils.js";
 
 export function renderChartToImage(GWAChartClass, currentMode, semesters) {
 	if (currentMode === "C" || !semesters || semesters.length === 0) return "";
@@ -30,22 +31,103 @@ export function renderChartToImage(GWAChartClass, currentMode, semesters) {
 	return url;
 }
 
-export function exportToPDF({
+export function getReportStyles() {
+	return `
+		@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+		* {
+			box-sizing: border-box;
+		}
+		body {
+			font-family: 'Outfit', sans-serif;
+			color: #2A2424;
+			padding: 40px;
+			line-height: 1.5;
+			background: #fff;
+			margin: 0;
+		}
+		.header {
+			text-align: center;
+			border-bottom: 3px solid #800000;
+			padding-bottom: 20px;
+			margin-bottom: 30px;
+		}
+		.title {
+			font-family: 'Playfair Display', serif;
+			font-size: 24px;
+			color: #4A0404;
+			margin: 0 0 8px 0;
+		}
+		.student-info {
+			margin: 5px 0;
+			font-size: 14px;
+			font-weight: 600;
+			font-style: italic;
+		}
+		.summary {
+			display: flex;
+			justify-content: space-around;
+			background: #fbfbf9;
+			padding: 16px;
+			border-radius: 8px;
+			border: 1px solid #ddd;
+			margin-bottom: 30px;
+			text-align: center;
+		}
+		.summary-box h3 {
+			margin: 0;
+			font-size: 11px;
+			text-transform: uppercase;
+			color: #888;
+			letter-spacing: 1px;
+		}
+		.summary-box p {
+			margin: 5px 0 0 0;
+			font-family: 'Playfair Display', serif;
+			font-size: 28px;
+			font-weight: 700;
+			color: #4A0404;
+		}
+		@media print {
+			body {
+				-webkit-print-color-adjust: exact;
+				print-color-adjust: exact;
+				padding: 0;
+				background: #fff;
+			}
+			.no-print {
+				display: none !important;
+			}
+		}
+		.footer {
+			margin-top: 50px;
+			text-align: center;
+			color: #bbb;
+			font-size: 10px;
+			letter-spacing: 0.5px;
+		}
+		.footer a {
+			color: #800000;
+			text-decoration: none;
+			font-weight: 700;
+			margin-left: 10px;
+		}
+		.footer-logo {
+			font-family: 'Playfair Display', serif;
+			font-style: italic;
+			font-size: 12px;
+			color: #4A0404;
+		}
+	`;
+}
+
+export function generateReportHTML({
 	currentMode,
 	studentInfo,
-	semesters,
-	curriculum,
-	userProjections,
-	chartImageUrl,
-	onComplete = () => {},
+	semesters = [],
+	curriculum = [],
+	userProjections = {},
+	chartImageUrl = "",
 }) {
-	const iframe = document.createElement("iframe");
-	iframe.style.position = "absolute";
-	iframe.style.width = "0px";
-	iframe.style.height = "0px";
-	iframe.style.border = "none";
-	document.body.appendChild(iframe);
-
 	let gwaVal = null;
 	let unitsVal = 0;
 	if (currentMode === "A") {
@@ -164,70 +246,13 @@ export function exportToPDF({
         `;
 	}
 
-	const docContent = `
+	return `
         <!DOCTYPE html>
         <html>
         <head>
             <title>anoGWAmo? Report</title>
             <style>
-                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
-                body {
-                    font-family: 'Outfit', sans-serif;
-                    color: #2A2424;
-                    padding: 40px;
-                    line-height: 1.5;
-                }
-                .header {
-                    text-align: center;
-                    border-bottom: 3px solid #800000;
-                    padding-bottom: 20px;
-                    margin-bottom: 30px;
-                }
-                .title {
-                    font-family: 'Playfair Display', serif;
-                    font-size: 24px;
-                    color: #4A0404;
-                    margin: 0 0 8px 0;
-                }
-                .student-info { margin: 5px 0; font-size: 14px; font-weight: 600; font-style: italic; }
-                .summary {
-                    display: flex;
-                    justify-content: space-around;
-                    background: #fbfbf9;
-                    padding: 16px;
-                    border-radius: 8px;
-                    border: 1px solid #ddd;
-                    margin-bottom: 30px;
-                    text-align: center;
-                }
-                .summary-box h3 {
-                    margin: 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px;
-                }
-                .summary-box p {
-                    margin: 5px 0 0 0; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: #4A0404;
-                }
-                @media print {
-                    body { -webkit-print-color-adjust: exact; padding: 0; }
-                }
-                .footer {
-                    margin-top: 50px;
-                    text-align: center;
-                    color: #bbb;
-                    font-size: 10px;
-                    letter-spacing: 0.5px;
-                }
-                .footer a {
-                    color: #800000;
-                    text-decoration: none;
-                    font-weight: 700;
-                    margin-left: 10px;
-                }
-                .footer-logo {
-                    font-family: 'Playfair Display', serif;
-                    font-style: italic;
-                    font-size: 12px;
-                    color: #4A0404;
-                }
+                ${getReportStyles()}
             </style>
         </head>
         <body>
@@ -255,18 +280,46 @@ export function exportToPDF({
         </body>
         </html>
     `;
+}
 
-	const doc = iframe.contentWindow.document;
-	doc.open();
-	doc.write(docContent);
-	doc.close();
+export async function exportToPDF({
+	currentMode,
+	studentInfo,
+	semesters,
+	curriculum,
+	userProjections,
+	chartImageUrl,
+	onComplete = () => {},
+}) {
+	try {
+		const reportId =
+			typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+				? crypto.randomUUID()
+				: `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
+		const storageKey = `anoGWAmo_report_${reportId}`;
 
-	setTimeout(() => {
-		iframe.contentWindow.focus();
-		iframe.contentWindow.print();
-		setTimeout(() => {
-			document.body.removeChild(iframe);
-			onComplete();
-		}, 1000);
-	}, 500);
+		await extApi.storage.local.set({
+			[storageKey]: {
+				currentMode,
+				studentInfo,
+				semesters,
+				curriculum,
+				userProjections,
+				chartImageUrl,
+			},
+		});
+
+		const reportUrl = extApi.runtime.getURL(
+			`report/report.html?id=${encodeURIComponent(reportId)}`,
+		);
+		if (extApi.tabs?.create) {
+			await extApi.tabs.create({ url: reportUrl });
+		} else {
+			window.open(reportUrl, "_blank");
+		}
+	} catch (err) {
+		console.error("Failed to open report tab:", err);
+	} finally {
+		onComplete();
+	}
 }
