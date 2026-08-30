@@ -313,7 +313,7 @@ export function renderModeC(curriculum, userProjections) {
           </div>
         </div>
         <ul class="pup-subj-list" style="margin-top: 6px; padding-left: 0;">
-          ${data.subjects.map((s) => `<li><span class="subj-code">${escapeHTML(s.code)}</span> <span class="pup-subj-desc">${escapeHTML(s.description)}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
+          ${data.subjects.map((s) => `<li><span class="subj-code">${escapeHTML(s.code)}</span> <span class="pup-subj-desc" title="${escapeHTML(s.description)}">${escapeHTML(s.description)}</span> <span class="muted-sm" style="margin: 0 0 0 auto; white-space: nowrap;">${s.units}u</span></li>`).join("")}
         </ul>
       </div>
     `;

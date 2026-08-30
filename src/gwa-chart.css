@@ -10,24 +10,46 @@
 	outline: none;
 }
 
+:root {
+	--gwa-tooltip-bg: #1c1818;
+	--gwa-tooltip-text: #fbfbf9;
+	--gwa-tooltip-border: rgba(74, 4, 4, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--gwa-tooltip-bg: #2b2525;
+		--gwa-tooltip-text: #eae6e6;
+		--gwa-tooltip-border: rgba(255, 255, 255, 0.15);
+	}
+}
+
 .gwa-chart-tooltip {
 	position: absolute;
 	pointer-events: none;
-	background-color: rgba(30, 30, 30, 0.9);
-	color: #fff;
+	background-color: var(--gwa-tooltip-bg);
+	color: var(--gwa-tooltip-text);
+	border: 1px solid var(--gwa-tooltip-border);
 	padding: 8px 12px;
 	border-radius: 6px;
-	font-family: system-ui, -apple-system, sans-serif;
+	font-family: "Outfit", -apple-system, sans-serif;
 	font-size: 13px;
 	line-height: 1.4;
 	z-index: 1000;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 	transition:
 		opacity 0.2s,
 		transform 0.1s;
 	opacity: 0;
 	transform: translateY(5px);
 	/* Hidden by default visually but structure exists */
+}
+
+.pup-dark .gwa-chart-tooltip,
+body.pup-dark .gwa-chart-tooltip {
+	--gwa-tooltip-bg: #2b2525;
+	--gwa-tooltip-text: #eae6e6;
+	--gwa-tooltip-border: rgba(255, 255, 255, 0.15);
 }
 
 .gwa-chart-tooltip.visible {
@@ -43,5 +65,5 @@
 	margin-left: -5px;
 	border-width: 5px;
 	border-style: solid;
-	border-color: rgba(30, 30, 30, 0.9) transparent transparent transparent;
+	border-color: var(--gwa-tooltip-bg) transparent transparent transparent;
 }

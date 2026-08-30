@@ -48,13 +48,13 @@ async function render() {
 			.getElementById("tpl-dashboard")
 			.content.cloneNode(true);
 
-		let gwa, totalUnits, totalAcademicUnits, reqAverages;
+		let gwa, totalUnits, totalAcademicUnits, reqAverages, modeCData;
 		if (mode === "C") {
-			const res = computeModeC(curriculum, projections);
-			gwa = res.projectedGwa;
-			totalUnits = res.totalUnits;
-			totalAcademicUnits = res.totalAcademicUnits;
-			reqAverages = res.requiredAverages;
+			modeCData = computeModeC(curriculum, projections);
+			gwa = modeCData.projectedGwa;
+			totalUnits = modeCData.totalUnits;
+			totalAcademicUnits = modeCData.totalAcademicUnits;
+			reqAverages = modeCData.requiredAverages;
 		} else {
 			const res =
 				mode === "A"
@@ -108,7 +108,7 @@ async function render() {
 			reqAverages.forEach((h) => {
 				const card = document.createElement("div");
 				card.className = "pl-target-card";
-				card.style.borderLeft = `3px solid ${h.color}`;
+				card.style.borderTop = `3px solid ${h.color}`;
 				const msg =
 					h.req < 1.0
 						? "N/A"
@@ -118,6 +118,99 @@ async function render() {
 				card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div>`;
 				targetsGrid.appendChild(card);
 			});
+
+			const plList = plTpl.querySelector("#pl-list");
+			if (plList && modeCData) {
+				const { pending, pendingBySem } = modeCData;
+				if (pending && pending.length > 0) {
+					Object.entries(pendingBySem).forEach(([semKey, semData]) => {
+						const semCard = document.createElement("div");
+						semCard.className = "pl-sem-card";
+
+						const semHeader = document.createElement("div");
+						semHeader.className = "pl-sem-header";
+
+						const titleSpan = document.createElement("span");
+						titleSpan.className = "pl-sem-title";
+						titleSpan.textContent = semKey;
+						titleSpan.title = semKey;
+
+						const targetDiv = document.createElement("div");
+						targetDiv.className = "pl-sem-target";
+						targetDiv.textContent = "Target: ";
+
+						const semSelect = document.createElement("select");
+						semSelect.className = "pl-select";
+						semSelect.dataset.code = semKey;
+
+						const defaultOpt = document.createElement("option");
+						defaultOpt.value = "";
+						defaultOpt.textContent = baseline
+							? `(Global ${parseFloat(baseline).toFixed(2)})`
+							: "--";
+						semSelect.appendChild(defaultOpt);
+
+						const grades = [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0];
+						const currentProj = projections[semKey] ?? "";
+						grades.forEach((g) => {
+							const opt = document.createElement("option");
+							const gStr = g.toFixed(2);
+							opt.value = gStr;
+							opt.textContent = gStr;
+							if (parseFloat(currentProj) === g) {
+								opt.selected = true;
+							}
+							semSelect.appendChild(opt);
+						});
+
+						semSelect.addEventListener("change", (e) => {
+							const val = e.target.value;
+							if (val === "") delete projections[semKey];
+							else projections[semKey] = val;
+							extApi.storage.local.set({ [PROJ_KEY]: projections });
+						});
+
+						targetDiv.appendChild(semSelect);
+						semHeader.appendChild(titleSpan);
+						semHeader.appendChild(targetDiv);
+						semCard.appendChild(semHeader);
+
+						const subjList = document.createElement("ul");
+						subjList.className = "pl-subj-list";
+						semData.subjects.forEach((s) => {
+							const li = document.createElement("li");
+							li.className = "pl-subj-item";
+
+							const codeSpan = document.createElement("span");
+							codeSpan.className = "pl-subj-code";
+							codeSpan.textContent = s.code;
+
+							const descSpan = document.createElement("span");
+							descSpan.className = "pl-subj-desc";
+							descSpan.textContent = s.description;
+							descSpan.title = s.description;
+
+							const unitsSpan = document.createElement("span");
+							unitsSpan.className = "pl-subj-units";
+							unitsSpan.textContent = `${s.units}u`;
+
+							li.appendChild(codeSpan);
+							li.appendChild(descSpan);
+							li.appendChild(unitsSpan);
+							subjList.appendChild(li);
+						});
+						semCard.appendChild(subjList);
+						plList.appendChild(semCard);
+					});
+				} else {
+					const emptyNote = document.createElement("p");
+					emptyNote.className = "muted-note";
+					emptyNote.style.textAlign = "center";
+					emptyNote.textContent =
+						"All academic units completed! No pending subjects.";
+					plList.appendChild(emptyNote);
+				}
+			}
 
 			tpl.querySelector(".main-card").replaceWith(plTpl);
 			tpl.querySelector("#ds-status-card").style.display = "none";

@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap");
-
 #pup-gwa-panel {
 	/* LIGHT EDITORIAL THEME */
 	--pup-bg: #fbfbf9; /* Archival Off-White */
@@ -359,6 +357,11 @@ a {
 	border-bottom: 1px solid transparent;
 }
 
+.pup-section > summary:focus-visible {
+	outline: 2px solid var(--pup-border-bold);
+	outline-offset: -2px;
+}
+
 .pup-section[open] > summary {
 	border-bottom-color: var(--pup-card-border);
 }
@@ -695,8 +698,18 @@ a {
 	outline: none;
 	min-width: 60px;
 }
-.pup-grade-select:focus {
+.pup-grade-select:focus-visible {
 	border-color: var(--pup-header-bg);
+	outline: 2px solid var(--pup-metallic-gold);
+	outline-offset: 1px;
+}
+
+.pup-export-btn:focus-visible,
+.pup-gwa-toggle:focus-visible,
+.mode-btn:focus-visible,
+.pup-sync-btn:focus-visible {
+	outline: 2px solid var(--pup-metallic-gold);
+	outline-offset: 2px;
 }
 
 .pup-simulator-card {

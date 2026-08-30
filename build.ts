@@ -60,7 +60,7 @@ async function run() {
 
 	let popupCss = await Bun.file("popup/popup.css").text();
 	popupCss = popupCss.replace(/@import url\(['"].*?['"]\);/g, "");
-	const popupFinalCss = `@import "../css/fonts.css";\n` + popupCss;
+	const popupFinalCss = `@import "../css/fonts.css";\n${popupCss}`;
 	await Bun.write("dist/chrome/popup/popup.css", popupFinalCss);
 
 	console.log("⚙️  Generating Manifests...");
