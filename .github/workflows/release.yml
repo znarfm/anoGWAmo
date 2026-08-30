@@ -77,5 +77,5 @@ jobs:
         with:
           jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
           jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
-          extension-id: ano.gwa.mo@meinard.dev
+          addon-guid: ano.gwa.mo@meinard.dev
           xpi-path: dist/anoGWAmo-firefox.zip
