@@ -211,10 +211,63 @@ async function createPanel(semesters, studentInfo) {
 	return panel;
 }
 
+function renderScraperFallback() {
+	if (document.getElementById("pup-gwa-fallback")) return;
+	const sec =
+		document.querySelector("section.content") ||
+		document.querySelector(".content-wrapper");
+	if (!sec) return;
+
+	const fallback = document.createElement("div");
+	fallback.id = "pup-gwa-fallback";
+	fallback.className = "pup-gwa-fallback-card";
+	fallback.innerHTML = `
+		<div class="pup-fallback-header">
+			<span class="pup-gwa-title">🎓 anoGWAmo?</span>
+			<span class="pup-fallback-badge">Notice</span>
+		</div>
+		<div class="pup-fallback-body">
+			<h4>⚠️ Unable to Detect Grades Table</h4>
+			<p>anoGWAmo could not read your grades from this page. This typically happens if:</p>
+			<ul>
+				<li>The page is still loading your academic history.</li>
+				<li>You are on a different student portal page instead of the Grades view.</li>
+				<li>PUP SIS updated its page layout or table structure.</li>
+			</ul>
+			<div class="pup-fallback-actions">
+				<button type="button" class="pup-sync-btn secondary" id="pup-fallback-retry">↻ Retry Detection</button>
+				<a href="https://github.com/znarfm/anoGWAmo/issues/new?template=bug_report.yml" target="_blank" class="pup-report-btn">🐛 Report Bug</a>
+			</div>
+		</div>
+	`;
+
+	const retryBtn = fallback.querySelector("#pup-fallback-retry");
+	if (retryBtn) {
+		retryBtn.addEventListener("click", () => {
+			fallback.remove();
+			init();
+		});
+	}
+
+	sec.insertBefore(fallback, sec.firstChild);
+}
+
 async function init() {
 	if (document.getElementById("pup-gwa-panel")) return;
 	const semesters = scrapeAll();
-	if (semesters.length === 0) return;
+	if (semesters.length === 0) {
+		if (
+			window.location.href.toLowerCase().includes("grades") ||
+			document.querySelector("section.content")
+		) {
+			renderScraperFallback();
+		}
+		return;
+	}
+
+	const existingFallback = document.getElementById("pup-gwa-fallback");
+	if (existingFallback) existingFallback.remove();
+
 	const studentInfo = scrapeStudentInfo();
 	const panel = await createPanel(semesters, studentInfo);
 	const sec = document.querySelector("section.content");

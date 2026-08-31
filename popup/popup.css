@@ -518,3 +518,10 @@ button:focus-visible,
 	font-weight: 600;
 	white-space: nowrap;
 }
+
+.pl-t-hint {
+	font-size: 9px;
+	color: var(--pup-text-muted-sm);
+	margin-top: 2px;
+	line-height: 1.1;
+}

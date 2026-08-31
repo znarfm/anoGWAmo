@@ -115,7 +115,14 @@ async function render() {
 						: h.req > 3.0
 							? "Guaranteed"
 							: `≤ ${h.req.toFixed(4)}`;
-				card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div>`;
+				const hint =
+					h.req < 1.0
+						? "Impossible (> 1.0000 needed)"
+						: h.req > 3.0
+							? "Guaranteed with passing grades"
+							: `Requires ~${h.req.toFixed(2)} across remaining ${modeCData?.remainingUnits ?? 0} units`;
+				card.title = hint;
+				card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div><div class="pl-t-hint">${h.req >= 1.0 && h.req <= 3.0 && modeCData ? `~${h.req.toFixed(2)} / ${modeCData.remainingUnits}u` : msg}</div>`;
 				targetsGrid.appendChild(card);
 			});
 

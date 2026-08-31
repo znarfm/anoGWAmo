@@ -795,3 +795,118 @@ a {
 .d-block {
 	display: block;
 }
+
+.pup-target-hint {
+	font-size: 10px;
+	color: var(--pup-text-muted-sm);
+	margin-top: 4px;
+	line-height: 1.2;
+}
+
+.pup-disq-alert {
+	background: var(--pup-status-disq-bg);
+	border: 1px solid var(--pup-status-disq-border);
+	border-left: 4px solid var(--pup-status-disq-text);
+	border-radius: 8px;
+	padding: 12px 16px;
+	margin-bottom: 16px;
+	color: var(--pup-status-disq-text);
+	animation: puploadStagger 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.pup-disq-alert strong {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 12px;
+}
+
+.pup-disq-alert ul {
+	margin: 0;
+	padding-left: 18px;
+	color: var(--pup-text);
+}
+
+.pup-disq-alert li {
+	margin-bottom: 4px;
+	font-size: 11px;
+}
+
+.pup-gwa-fallback-card {
+	background: var(--pup-surface);
+	border: 1px solid var(--pup-border);
+	border-left: 4px solid var(--pup-tag-warn-text);
+	border-radius: 12px;
+	padding: 20px 24px;
+	margin-bottom: 24px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+	animation: puploadStagger 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.pup-fallback-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.pup-fallback-badge {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: var(--pup-tag-warn-bg);
+	color: var(--pup-tag-warn-text);
+}
+
+.pup-fallback-body h4 {
+	margin: 0 0 8px 0;
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--pup-text);
+}
+
+.pup-fallback-body p {
+	margin: 0 0 10px 0;
+	font-size: 13px;
+	color: var(--pup-text-muted);
+}
+
+.pup-fallback-body ul {
+	margin: 0 0 16px 0;
+	padding-left: 20px;
+	font-size: 12px;
+	color: var(--pup-text-muted);
+}
+
+.pup-fallback-body li {
+	margin-bottom: 4px;
+}
+
+.pup-fallback-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pup-report-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	background: var(--pup-tag-bg);
+	color: var(--pup-text);
+	border: 1px solid var(--pup-border);
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.2s ease;
+}
+
+.pup-report-btn:hover {
+	background: var(--pup-tag-warn-bg);
+	color: var(--pup-tag-warn-text);
+	border-color: var(--pup-tag-warn-text);
+	text-decoration: none;
+}
