@@ -227,7 +227,11 @@ export function renderModeC(curriculum, userProjections) {
 						let msg = "";
 						let cls = "";
 						let hint = "";
-						if (h.req < 1.0) {
+						if (disqualifiers && disqualifiers.length > 0) {
+							msg = "Disqualified";
+							cls = "target-impossible";
+							hint = "Disqualified from Latin Honors (PUP criteria)";
+						} else if (h.req < 1.0) {
 							msg = "Impossible";
 							cls = "target-impossible";
 							hint = "Target GWA exceeds 1.0000 limit";
@@ -259,7 +263,8 @@ export function renderModeC(curriculum, userProjections) {
 	let simulatorHTML = "";
 	if (remainingUnits > 0) {
 		const pGwaStr = projectedGwa !== null ? projectedGwa.toFixed(4) : "—";
-		const pHonorVal = honorFor(projectedGwa);
+		const pHonorVal =
+			disqualifiers && disqualifiers.length > 0 ? null : honorFor(projectedGwa);
 		const resultColor =
 			projectedGwa !== null ? honorColor(pHonorVal) : "var(--pup-text-muted)";
 
@@ -287,7 +292,7 @@ export function renderModeC(curriculum, userProjections) {
         <div class="pup-simulator-result" style="color: ${resultColor}">
           <span class="pup-sim-label">Projected Final GWA</span>
           <span class="pup-sim-val">${pGwaStr}</span>
-          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${escapeHTML(pHonorVal)}</span>` : ""}
+          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${escapeHTML(pHonorVal)}</span>` : disqualifiers && disqualifiers.length > 0 ? `<span class="pup-sim-honor status-disqualified">Disqualified</span>` : ""}
         </div>
         ${subtext}
       </div>

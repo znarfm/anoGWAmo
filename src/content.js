@@ -258,7 +258,8 @@ async function init() {
 	if (semesters.length === 0) {
 		if (
 			window.location.href.toLowerCase().includes("grades") ||
-			document.querySelector("section.content")
+			document.querySelector("section.content") ||
+			document.querySelector(".content-wrapper")
 		) {
 			renderScraperFallback();
 		}
