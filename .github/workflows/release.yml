@@ -62,8 +62,10 @@ jobs:
 
       # Chrome Web Store (https://github.com/mnao305/chrome-extension-upload)
       - name: Publish to Chrome Web Store
+        id: publish_chrome
         uses: mnao305/chrome-extension-upload@fdfe79400af990f5145a319e834aee64907ccff4 # v6.0.0
         if: env.CHROME_CLIENT_ID != '' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'chrome' || github.event_name == 'push')
+        continue-on-error: true
         with:
           file-path: dist/anoGWAmo-chrome.zip
           extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
@@ -73,8 +75,10 @@ jobs:
 
       # Microsoft Edge Add-ons (https://github.com/wdzeng/edge-addon)
       - name: Publish to Edge Add-ons
+        id: publish_edge
         uses: wdzeng/edge-addon@9881f57720358040d079eaa06a4596dc9c273eb6 # v2.1.1
         if: env.EDGE_CLIENT_ID != '' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'edge' || github.event_name == 'push')
+        continue-on-error: true
         with:
           client-id: ${{ secrets.EDGE_CLIENT_ID }}
           product-id: ${{ secrets.EDGE_PRODUCT_ID }}
@@ -83,10 +87,29 @@ jobs:
 
       # Firefox Add-ons (https://github.com/wdzeng/firefox-addon)
       - name: Publish to Firefox AMO
+        id: publish_firefox
         uses: wdzeng/firefox-addon@3184ee491b500e080885e046051366a4228c6e5d # v1.2.1
         if: env.FIREFOX_JWT_ISSUER != '' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'firefox' || github.event_name == 'push')
+        continue-on-error: true
         with:
           jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
           jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
           addon-guid: ano.gwa.mo@meinard.dev
           xpi-path: dist/anoGWAmo-firefox.zip
+
+      # Aggregated Store Publishing Status
+      - name: Verify Publishing Outcomes
+        if: always()
+        run: |
+          chrome_outcome="${{ steps.publish_chrome.outcome }}"
+          edge_outcome="${{ steps.publish_edge.outcome }}"
+          firefox_outcome="${{ steps.publish_firefox.outcome }}"
+
+          echo "Chrome upload outcome:  ${chrome_outcome:-skipped}"
+          echo "Edge upload outcome:    ${edge_outcome:-skipped}"
+          echo "Firefox upload outcome: ${firefox_outcome:-skipped}"
+
+          if [ "$chrome_outcome" = "failure" ] || [ "$edge_outcome" = "failure" ] || [ "$firefox_outcome" = "failure" ]; then
+            echo "::error::One or more store publishing steps encountered an error."
+            exit 1
+          fi
