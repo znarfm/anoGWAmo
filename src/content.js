@@ -93,6 +93,7 @@ async function createPanel(semesters, studentInfo) {
             <button type="button" class="mode-btn ${currentMode === "B" ? "active" : ""}" data-mode="B">Site GPA</button>
           </div>
           <button type="button" class="pup-export-btn" title="Export to PDF">📥</button>
+          <a href="https://github.com/znarfm/anoGWAmo/issues/new?template=bug_report.yml" target="_blank" class="pup-header-icon-btn" title="Report a Bug / Issue">🐛</a>
           <button type="button" class="pup-gwa-toggle" title="Collapse/Expand">▲</button>
         </div>
       </div>

@@ -162,6 +162,7 @@ a {
 }
 
 .pup-export-btn,
+.pup-header-icon-btn,
 .pup-gwa-toggle {
 	background: none;
 	color: var(--pup-header-text);
@@ -175,14 +176,19 @@ a {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	text-decoration: none;
+	line-height: 1;
 }
 .pup-export-btn:hover,
+.pup-header-icon-btn:hover,
 .pup-gwa-toggle:hover {
 	background: var(--pup-header-text);
 	color: var(--pup-header-bg);
+	text-decoration: none;
 }
 
-.pup-export-btn {
+.pup-export-btn,
+.pup-header-icon-btn {
 	margin-right: 6px;
 	font-size: 12px;
 }
