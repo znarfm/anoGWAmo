@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Bun Environment
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: latest
 
@@ -51,7 +51,7 @@ jobs:
         run: bun run build
 
       - name: GitHub Release Creation
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
@@ -62,7 +62,7 @@ jobs:
 
       # Chrome Web Store (https://github.com/mnao305/chrome-extension-upload)
       - name: Publish to Chrome Web Store
-        uses: mnao305/chrome-extension-upload@v5.0.0
+        uses: mnao305/chrome-extension-upload@fdfe79400af990f5145a319e834aee64907ccff4 # v6.0.0
         if: env.CHROME_CLIENT_ID != '' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'chrome' || github.event_name == 'push')
         with:
           file-path: dist/anoGWAmo-chrome.zip
@@ -73,7 +73,7 @@ jobs:
 
       # Microsoft Edge Add-ons (https://github.com/wdzeng/edge-addon)
       - name: Publish to Edge Add-ons
-        uses: wdzeng/edge-addon@v2.1.0
+        uses: wdzeng/edge-addon@9881f57720358040d079eaa06a4596dc9c273eb6 # v2.1.1
         if: env.EDGE_CLIENT_ID != '' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'edge' || github.event_name == 'push')
         with:
           client-id: ${{ secrets.EDGE_CLIENT_ID }}
@@ -83,7 +83,7 @@ jobs:
 
       # Firefox Add-ons (https://github.com/wdzeng/firefox-addon)
       - name: Publish to Firefox AMO
-        uses: wdzeng/firefox-addon@v1.2.0
+        uses: wdzeng/firefox-addon@3184ee491b500e080885e046051366a4228c6e5d # v1.2.1
         if: env.FIREFOX_JWT_ISSUER != '' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'firefox' || github.event_name == 'push')
         with:
           jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
