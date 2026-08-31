@@ -20,3 +20,5 @@
 
 # secrets
 secrets.*.js
+
+.pdf
