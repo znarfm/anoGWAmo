@@ -152,6 +152,25 @@ a:active {
 	color: inherit;
 }
 
+.popup-bug-btn {
+	font-size: 13px;
+	text-decoration: none;
+	opacity: 0.7;
+	transition:
+		opacity 0.2s ease,
+		transform 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	margin-left: 2px;
+	line-height: 1;
+}
+
+.popup-bug-btn:hover {
+	opacity: 1;
+	transform: scale(1.2);
+	text-decoration: none;
+}
+
 .logo-emoji {
 	font-size: 20px;
 	line-height: 1;
@@ -517,4 +536,11 @@ button:focus-visible,
 	color: var(--pup-text-muted-sm);
 	font-weight: 600;
 	white-space: nowrap;
+}
+
+.pl-t-hint {
+	font-size: 9px;
+	color: var(--pup-text-muted-sm);
+	margin-top: 2px;
+	line-height: 1.1;
 }

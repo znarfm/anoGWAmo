@@ -8,6 +8,7 @@
 		"format": "biome check --write",
 		"lint": "biome check --write",
 		"check": "biome check --write",
+		"check:ci": "biome ci",
 		"test": "bun test"
 	},
 	"devDependencies": {

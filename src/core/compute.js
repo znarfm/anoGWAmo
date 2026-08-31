@@ -65,8 +65,26 @@ export function computeModeC(curriculum, userProjections = {}) {
 	let unprojectedUnits = 0;
 	const pendingBySem = {};
 	const pending = [];
+	const disqualifiers = [];
 
 	curriculum.forEach((subj) => {
+		const gs = (subj.gradeRaw ?? "").trim().toLowerCase();
+		if (subj.grade === 5.0) {
+			disqualifiers.push(
+				`Failing grade (5.0) in ${subj.code} – ${subj.description}`,
+			);
+		} else if (gs === "inc." || gs === "inc") {
+			disqualifiers.push(
+				`Incomplete (Inc.) in ${subj.code} – ${subj.description}`,
+			);
+		} else if (gs === "w" || gs === "w.") {
+			disqualifiers.push(`Withdrawn (W) in ${subj.code} – ${subj.description}`);
+		} else if (subj.grade !== null && subj.grade !== 5.0 && subj.grade > 2.5) {
+			disqualifiers.push(
+				`Grade below 2.5 in ${subj.code} – ${subj.description}: ${subj.grade}`,
+			);
+		}
+
 		if (subj.isNonAcademic || subj.units === null) return;
 
 		if (subj.grade !== null && subj.grade <= 3.0) {
@@ -134,6 +152,8 @@ export function computeModeC(curriculum, userProjections = {}) {
 		pendingBySem,
 		pending,
 		requiredAverages,
+		disqualifiers,
+		hasDisqualifiers: disqualifiers.length > 0,
 	};
 }
 

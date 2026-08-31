@@ -8,7 +8,9 @@ export async function triggerCurriculumSync(onComplete) {
 	);
 
 	if (!evalBtn) {
-		alert("anoGWAmo: 'Curriculum Evaluation' button not found on this page.");
+		alert(
+			"anoGWAmo: 'Curriculum Evaluation' button not found on this page.\n\nIf PUP SIS updated its layout, please report this issue at:\nhttps://github.com/znarfm/anoGWAmo/issues/new?template=bug_report.yml",
+		);
 		return false;
 	}
 
@@ -46,7 +48,9 @@ export async function triggerCurriculumSync(onComplete) {
 		return true;
 	}
 
-	alert("anoGWAmo: Failed to load curriculum modal.");
+	alert(
+		"anoGWAmo: Failed to load curriculum modal.\n\nIf the modal failed to appear, please report this issue at:\nhttps://github.com/znarfm/anoGWAmo/issues/new?template=bug_report.yml",
+	);
 	return false;
 }
 

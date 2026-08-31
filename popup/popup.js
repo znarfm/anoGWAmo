@@ -105,17 +105,31 @@ async function render() {
 			}
 
 			const targetsGrid = plTpl.querySelector("#pl-targets");
+			const isDisqualified =
+				modeCData?.disqualifiers && modeCData.disqualifiers.length > 0;
 			reqAverages.forEach((h) => {
 				const card = document.createElement("div");
 				card.className = "pl-target-card";
 				card.style.borderTop = `3px solid ${h.color}`;
-				const msg =
-					h.req < 1.0
-						? "N/A"
-						: h.req > 3.0
-							? "Guaranteed"
-							: `≤ ${h.req.toFixed(4)}`;
-				card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div>`;
+
+				let msg = "";
+				let hint = "";
+				if (isDisqualified) {
+					msg = "Disqualified";
+					hint = "Disqualified from Latin Honors (PUP criteria)";
+				} else if (h.req < 1.0) {
+					msg = "N/A";
+					hint = "Impossible (> 1.0000 needed)";
+				} else if (h.req > 3.0) {
+					msg = "Guaranteed";
+					hint = "Guaranteed with passing grades";
+				} else {
+					msg = `≤ ${h.req.toFixed(4)}`;
+					hint = `Requires ~${h.req.toFixed(2)} across remaining ${modeCData?.remainingUnits ?? 0} units`;
+				}
+
+				card.title = hint;
+				card.innerHTML = `<div class="pl-t-lab">${h.label}</div><div class="pl-t-val">${msg}</div><div class="pl-t-hint">${!isDisqualified && h.req >= 1.0 && h.req <= 3.0 && modeCData ? `~${h.req.toFixed(2)} / ${modeCData.remainingUnits}u` : msg}</div>`;
 				targetsGrid.appendChild(card);
 			});
 

@@ -212,6 +212,7 @@ export function renderModeC(curriculum, userProjections) {
 		pending,
 		pendingBySem,
 		requiredAverages,
+		disqualifiers,
 	} = computeModeC(curriculum, userProjections);
 	const currentHonor = honorFor(gwa);
 	const globalProj = userProjections.GLOBAL ?? "";
@@ -225,20 +226,29 @@ export function renderModeC(curriculum, userProjections) {
 					.map((h) => {
 						let msg = "";
 						let cls = "";
-						if (h.req < 1.0) {
+						let hint = "";
+						if (disqualifiers && disqualifiers.length > 0) {
+							msg = "Disqualified";
+							cls = "target-impossible";
+							hint = "Disqualified from Latin Honors (PUP criteria)";
+						} else if (h.req < 1.0) {
 							msg = "Impossible";
 							cls = "target-impossible";
+							hint = "Target GWA exceeds 1.0000 limit";
 						} else if (h.req > 3.0) {
 							msg = "Guaranteed";
 							cls = "target-guaranteed";
+							hint = "Already secured with passing grades";
 						} else {
 							msg = `≤ ${h.req.toFixed(4)}`;
 							cls = "target-possible";
+							hint = `Requires ~${h.req.toFixed(2)} across remaining ${remainingUnits} units`;
 						}
 
-						return `<div class="pup-target-card ${cls}" style="border-top-color: ${h.color}">
+						return `<div class="pup-target-card ${cls}" style="border-top-color: ${h.color}" title="${escapeHTML(hint)}">
             <div class="pup-target-label">${escapeHTML(h.label)}</div>
             <div class="pup-target-val">${msg}</div>
+            <div class="pup-target-hint">${escapeHTML(hint)}</div>
           </div>`;
 					})
 					.join("")}
@@ -253,7 +263,8 @@ export function renderModeC(curriculum, userProjections) {
 	let simulatorHTML = "";
 	if (remainingUnits > 0) {
 		const pGwaStr = projectedGwa !== null ? projectedGwa.toFixed(4) : "—";
-		const pHonorVal = honorFor(projectedGwa);
+		const pHonorVal =
+			disqualifiers && disqualifiers.length > 0 ? null : honorFor(projectedGwa);
 		const resultColor =
 			projectedGwa !== null ? honorColor(pHonorVal) : "var(--pup-text-muted)";
 
@@ -281,12 +292,22 @@ export function renderModeC(curriculum, userProjections) {
         <div class="pup-simulator-result" style="color: ${resultColor}">
           <span class="pup-sim-label">Projected Final GWA</span>
           <span class="pup-sim-val">${pGwaStr}</span>
-          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${escapeHTML(pHonorVal)}</span>` : ""}
+          ${pHonorVal ? `<span class="pup-sim-honor status-honor">${escapeHTML(pHonorVal)}</span>` : disqualifiers && disqualifiers.length > 0 ? `<span class="pup-sim-honor status-disqualified">Disqualified</span>` : ""}
         </div>
         ${subtext}
       </div>
     `;
 	}
+
+	const disqAlertHTML =
+		disqualifiers && disqualifiers.length > 0
+			? `<div class="pup-disq-alert">
+        <strong>⚠️ Latin Honors Disqualification Detected (PUP Criteria)</strong>
+        <ul>
+          ${disqualifiers.map((d) => `<li>${escapeHTML(d)}</li>`).join("")}
+        </ul>
+      </div>`
+			: "";
 
 	const pendingSemsHTML =
 		pending.length > 0
@@ -328,8 +349,10 @@ export function renderModeC(curriculum, userProjections) {
       </div>
       <div class="pup-gwa-label">Current Finalized GWA</div>
       <div class="pup-gwa-units">${totalUnits} / ${totalAcademicUnits} total academic units finalized</div>
+      ${statusBadgeHTML(gwa, disqualifiers || [], remainingUnits > 0)}
     </div>
     <div class="pup-honors-table">${honorsTableHTML(gwa)}</div>
+    ${disqAlertHTML}
     ${targetsHTML}
     ${simulatorHTML}
     <details class="pup-section" open>

@@ -261,11 +261,23 @@ describe("compute.js", () => {
 			expect(result.pUnits).toBe(0);
 		});
 
-		test("returns null required averages when all units completed", () => {
-			const completedCurriculum = [
+		test("detects disqualifiers in curriculum subjects", () => {
+			const disqualifiedCurriculum = [
 				{
-					code: "COMP 1",
-					grade: 1.25,
+					code: "MATH 101",
+					description: "Algebra",
+					grade: 5.0,
+					gradeRaw: "5.0",
+					units: 3,
+					isNonAcademic: false,
+					schoolYear: "1st Year",
+					semester: "1st Sem",
+				},
+				{
+					code: "COMP 101",
+					description: "Prog",
+					grade: 1.0,
+					gradeRaw: "1.0",
 					units: 3,
 					isNonAcademic: false,
 					schoolYear: "1st Year",
@@ -273,10 +285,10 @@ describe("compute.js", () => {
 				},
 			];
 
-			const result = computeModeC(completedCurriculum);
-			expect(result.remainingUnits).toBe(0);
-			expect(result.requiredAverages.every((h) => h.req === null)).toBe(true);
-			expect(result.projectedGwa).toBe(1.25);
+			const result = computeModeC(disqualifiedCurriculum);
+			expect(result.hasDisqualifiers).toBe(true);
+			expect(result.disqualifiers.length).toBe(1);
+			expect(result.disqualifiers[0]).toContain("Failing grade (5.0)");
 		});
 	});
 
