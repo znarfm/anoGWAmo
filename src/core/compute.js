@@ -1,5 +1,5 @@
 import { HONORS } from "./constants.js";
-import { isNonAcademic, parseGrade } from "./utils.js";
+import { isNonAcademic } from "./utils.js";
 
 export function computeModeA(semesters) {
 	let pts = 0,
